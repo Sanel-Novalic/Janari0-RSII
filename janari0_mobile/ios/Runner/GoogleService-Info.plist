@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>143272886853-5cf8a44j4er5hs8oh4gal4gdgme4lgik.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.143272886853-5cf8a44j4er5hs8oh4gal4gdgme4lgik</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD-QNrBxlX4vsnah_NkXT2N9Ary4Xwi-fs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>143272886853</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.janari0Mobile</string>
+	<key>PROJECT_ID</key>
+	<string>janari0-b4e82</string>
+	<key>STORAGE_BUCKET</key>
+	<string>janari0-b4e82.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:143272886853:ios:19056645c00bc1545cd92c</string>
+	<key>DATABASE_URL</key>
+	<string>https://janari0-b4e82-default-rtdb.europe-west1.firebasedatabase.app</string>
+</dict>
+</plist>

@@ -1,0 +1,23 @@
+{
+  "resourceName": "s3images",
+  "policyUUID": "4d278dd4",
+  "bucketName": "janari0mobile718c5f02d8bd43c88f87cf24317c5b72",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "groupAccess": {
+    "s3users": [
+      "CREATE_AND_UPDATE",
+      "READ",
+      "DELETE"
+    ]
+  }
+}
