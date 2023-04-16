@@ -5,11 +5,13 @@ namespace Janari0.Services.Database;
 
 public partial class Location
 {
-    public int LocationId { get; set; }
-
-    public string Geohash { get; set; } = null!;
-
     public decimal Latitude { get; set; }
 
     public decimal Longitude { get; set; }
+
+    public int LocationId { get; set; }
+
+    public virtual ICollection<ProductsSale> ProductsSales { get; } = new List<ProductsSale>();
+
+    public virtual ICollection<User> Users { get; } = new List<User>();
 }

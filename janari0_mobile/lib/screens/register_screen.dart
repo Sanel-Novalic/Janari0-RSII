@@ -1,27 +1,15 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:janari0_mobile/model/requests/product_insert_request.dart';
+import 'package:janari0_mobile/model/requests/location_CU_request.dart';
 import 'package:janari0_mobile/providers/user_provider.dart';
-import '../CustomPopupButton.dart';
-import '../GenerateImageUrl.dart';
-import '../GetImagePermission.dart';
-import '../UploadFile.dart';
-import '../carousel.dart';
-import '../model/product.dart';
 import '../model/requests/user_insert_request.dart';
-import '../test.dart';
+import '../model/requests/user_update_request.dart';
 import '../utils/custom_form_field.dart';
-import 'main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
+  static const String routeName = "/register";
   const RegisterScreen({super.key});
 
   @override
@@ -35,7 +23,7 @@ class _RegisterScreen extends State<RegisterScreen> {
   TextEditingController passwordRepeat = TextEditingController();
   TextEditingController phoneNumber = TextEditingController();
   bool valid = false;
-  UserProvider? userProvider = UserProvider();
+  UserProvider userProvider = UserProvider();
   @override
   void initState() {
     super.initState();
@@ -63,16 +51,16 @@ class _RegisterScreen extends State<RegisterScreen> {
                 opacity: 1)),
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
-            Container(
+            const SizedBox(
                 width: double.infinity,
                 child: Text(
                   'Hello there!',
                   textAlign: TextAlign.center,
                 )),
-            SizedBox(
+            const SizedBox(
               height: 200,
             ),
             Padding(
@@ -84,7 +72,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
                 labelTextStyle:
-                    TextStyle(color: Colors.black, background: null),
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.person,
                   color: Colors.grey,
@@ -102,7 +90,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
                 labelTextStyle:
-                    TextStyle(color: Colors.black, background: null),
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.email,
                   color: Colors.grey,
@@ -120,7 +108,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
                 labelTextStyle:
-                    TextStyle(color: Colors.black, background: null),
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -138,7 +126,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
                 labelTextStyle:
-                    TextStyle(color: Colors.black, background: null),
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -159,7 +147,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                 initialCountryCode: 'IN',
                 onChanged: (phone) {
                   phoneNumber.text = phone.completeNumber;
-                  print(phoneNumber.text);
+                  debugPrint(phoneNumber.text);
                 },
               ),
               //child: PhoneNumberInput(
@@ -182,8 +170,8 @@ class _RegisterScreen extends State<RegisterScreen> {
             ),
             ElevatedButton(
               onPressed: () => registerUser(),
-              child: Text('Register'),
-              style: ElevatedButton.styleFrom(shape: StadiumBorder()),
+              style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+              child: const Text('Register'),
             ),
           ],
         ),
@@ -193,24 +181,33 @@ class _RegisterScreen extends State<RegisterScreen> {
 
   registerUser() async {
     try {
-      print(phoneNumber.text);
-      UserInsertRequest user = UserInsertRequest();
-      user.username = username.text;
-      user.email = email.text;
-      user.phoneNumber = phoneNumber.text;
-      await userProvider!.insert(user);
+      debugPrint(phoneNumber.text);
+      int id = 1;
+      await userProvider.get(null).then((value) => id = value.length);
+      LocationCURequest locationInsertRequest =
+          LocationCURequest(latitude: 0, longitude: 0);
+      UserInsertRequest user = UserInsertRequest(
+          email: email.text,
+          username: username.text,
+          phoneNumber: phoneNumber.text,
+          location: locationInsertRequest);
+      await userProvider.insert(user);
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.text,
         password: password.text,
       );
+      debugPrint("AWDA");
+      var userUpdateRequest =
+          UserUpdateRequest(uid: FirebaseAuth.instance.currentUser!.uid);
+      userProvider.update(id + 1, userUpdateRequest);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        debugPrint('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        debugPrint('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 }

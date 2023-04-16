@@ -1,16 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:janari0_mobile/carousel.dart';
-import 'package:janari0_mobile/providers/product_provider.dart';
-import 'package:janari0_mobile/screens/AddProduct.dart';
-import 'package:janari0_mobile/screens/AddProductExpirationDate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:janari0_mobile/screens/main_screen.dart';
 import 'package:janari0_mobile/screens/register_screen.dart';
-import 'package:janari0_mobile/test.dart';
-import 'CustomPopupButton.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,24 +21,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      navigatorObservers: [FlutterSmartDialog.observer],
+      // here
+      builder: FlutterSmartDialog.init(),
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.green,
-      ),
+          primarySwatch: Colors.green,
+          fontFamily: GoogleFonts.montserrat().fontFamily),
       home: auth.currentUser == null ? const MyHomePage() : const MainScreen(),
-      onGenerateRoute: (settings) {
-        if (settings.name == AddProduct.routeName) {
-          return MaterialPageRoute(builder: ((context) => AddProduct()));
-        }
-      },
     );
   }
 }
@@ -52,9 +35,9 @@ class MyApp extends StatelessWidget {
 void setupAuthListener(context) {
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     if (user == null) {
-      print('User is currently signed out!');
+      debugPrint('User is currently signed out!');
     } else {
-      print('User is signed in!');
+      debugPrint('User is signed in!');
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const MainScreen()));
     }
@@ -80,7 +63,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String email = "email";
   String password = "password";
-
   @override
   void initState() {
     super.initState();
@@ -146,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () => loginUser(),
-              style: ElevatedButton.styleFrom(shape: StadiumBorder()),
+              style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
               child: const Text('Login'),
             ),
             Row(
@@ -171,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loginUser() async {
     try {
-      final credential = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

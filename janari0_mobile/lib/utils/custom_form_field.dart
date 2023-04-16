@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 
 class CustomFormField {
-  Material field({
-    required String question,
-    //
-    required bool canBeNull,
-    //
-    double? fieldTextFontSize,
-    //
-    String? initialValue,
-    //
-    double? verticalTextPadding,
-    double? horizontalTextPadding,
-    //
-    Icon? icon,
-    //
-    TextEditingController? controller,
-    double? borderRadius,
-    //
-    TextStyle? labelTextStyle,
-    //
-  }) {
+  Material field(
+      {required String question,
+      //
+      bool canBeNull = false,
+      //
+      double? fieldTextFontSize,
+      //
+      String? initialValue,
+      //
+      double? verticalTextPadding,
+      double? horizontalTextPadding,
+      //
+      Icon? icon,
+      //
+      TextEditingController? controller,
+      double? borderRadius,
+      //
+      TextStyle? labelTextStyle,
+      //
+      Color? borderColor}) {
     BorderRadius borderRadius_;
     borderRadius != null
         ? borderRadius_ = BorderRadius.circular(borderRadius)
@@ -45,23 +45,23 @@ class CustomFormField {
                 horizontal: horizontalTextPadding ?? 6),
             errorBorder: OutlineInputBorder(
               borderRadius: borderRadius_,
-              borderSide: const BorderSide(color: Colors.red),
+              borderSide: BorderSide(color: borderColor ?? Colors.white),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: borderRadius_,
-              borderSide: const BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: borderColor ?? Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: borderRadius_,
-              borderSide: const BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: borderColor ?? Colors.white),
             ),
             border: OutlineInputBorder(
               borderRadius: borderRadius_,
-              borderSide: const BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: borderColor ?? Colors.white),
             ),
             labelStyle: labelTextStyle ??
                 TextStyle(fontSize: fieldTextFontSize, color: Colors.grey[700]),
-            suffixIcon: icon != null ? icon : null,
+            suffixIcon: icon,
           ),
           validator: (String? value) {
             if (value!.trim().isEmpty && !canBeNull) {

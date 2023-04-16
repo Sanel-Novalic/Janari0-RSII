@@ -13,5 +13,15 @@ namespace Janari0.Model
         public string PhoneNumber { get; set; }
 
         public string Role { get; set; }
+
+        public string Email { get; set; }
+
+        public int? LocationId { get; set; }
+        
+        public string Uid { get; set; }
+
+        public virtual Location Location { get; set; }
+
+        public virtual ICollection<Product> Products { get; } = new List<Product>();
     }
 }
