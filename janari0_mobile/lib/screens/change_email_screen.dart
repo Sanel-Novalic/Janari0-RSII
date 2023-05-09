@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:janari0_mobile/providers/user_provider.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
+import 'package:janari0/providers/user_provider.dart';
+import 'package:janari0/model/user.dart' as u;
 import '../utils/custom_form_field.dart';
 import 'main_screen.dart';
 

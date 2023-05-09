@@ -1,28 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:janari0_mobile/model/requests/product_sale_insert_request.dart';
-import 'package:janari0_mobile/providers/product_sale_provider.dart';
-import 'package:janari0_mobile/screens/product_details_screen.dart';
+import 'package:janari0/model/requests/product_sale_insert_request.dart';
+import 'package:janari0/providers/product_sale_provider.dart';
+import 'package:janari0/screens/product_details_screen.dart';
 import '../model/product.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
 import '../model/product_sale.dart';
+import '../model/user.dart';
 import '../utils/multi_line_text.dart';
 
 class DonateProductScreen extends StatefulWidget {
   static const String routeName = "/sell_product";
   final List<Product> products;
   final bool hasPrice;
+  final User user;
   const DonateProductScreen(
-      {super.key, required this.products, required this.hasPrice});
+      {super.key,
+      required this.products,
+      required this.hasPrice,
+      required this.user});
 
   @override
   State<StatefulWidget> createState() => _DonateProductScreen();
 }
 
 class _DonateProductScreen extends State<DonateProductScreen> {
-  final User? user = FirebaseAuth.instance.currentUser;
   GlobalKey globalKey = GlobalKey();
   ProductSaleProvider productSaleProvider = ProductSaleProvider();
   TextEditingController productSearchController = TextEditingController();
@@ -202,7 +205,8 @@ class _DonateProductScreen extends State<DonateProductScreen> {
     await productSaleProvider.insert(ProductSaleInsertRequest(
         productId: product!.productId!,
         price: priceController.text,
-        description: descriptionController.text));
+        description: descriptionController.text,
+        locationId: widget.user.locationId));
     print("ADWDAD${product!.productId}");
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -211,9 +215,11 @@ class _DonateProductScreen extends State<DonateProductScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => ProductDetailsScreen(
-                productSale: ProductSale(
-                    product: product!,
-                    price: priceController.text,
-                    description: descriptionController.text))));
+                  productSale: ProductSale(
+                      product: product!,
+                      price: priceController.text,
+                      description: descriptionController.text),
+                  user: widget.user,
+                )));
   }
 }

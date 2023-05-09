@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:janari0/providers/product_provider.dart';
 
 import '../model/product.dart';
 
@@ -13,6 +15,8 @@ class ShowProducts extends StatefulWidget {
 
 class _ShowProducts extends State<ShowProducts> {
   TextEditingController nameController = TextEditingController();
+  DateFormat dateFormat = DateFormat.yMMMMd('en_US');
+  ProductProvider productProvider = ProductProvider();
   @override
   void initState() {
     super.initState();
@@ -55,15 +59,23 @@ class _ShowProducts extends State<ShowProducts> {
                     height: 60,
                     width: 120,
                   ),
+                  const SizedBox(
+                    width: 50,
+                  ),
                   Column(
                     children: [
                       Text(widget.products[i].name!),
-                      Text(widget.products[i].expirationDate!.toIso8601String())
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Text(
+                          dateFormat.format(widget.products[i].expirationDate!))
                     ],
                   ),
+                  const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () {},
+                    onPressed: () => deleteProduct(widget.products[i], i),
                   )
                 ],
               )),
@@ -72,5 +84,12 @@ class _ShowProducts extends State<ShowProducts> {
         ],
       ),
     );
+  }
+
+  deleteProduct(Product product, int index) async {
+    await productProvider.delete(product.productId!);
+    setState(() {
+      widget.products.removeAt(index);
+    });
   }
 }

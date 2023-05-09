@@ -6,9 +6,9 @@ namespace Janari0.Model
 {
     public partial class Location
     {
-        public decimal Latitude { get; set; }
+        public double Latitude { get; set; }
 
-        public decimal Longitude { get; set; }
+        public double Longitude { get; set; }
 
         public int LocationId { get; set; }
 

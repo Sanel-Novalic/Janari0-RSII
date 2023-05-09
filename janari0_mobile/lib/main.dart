@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:janari0_mobile/screens/main_screen.dart';
-import 'package:janari0_mobile/screens/register_screen.dart';
+import 'package:janari0/screens/main_screen.dart';
+import 'package:janari0/screens/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 

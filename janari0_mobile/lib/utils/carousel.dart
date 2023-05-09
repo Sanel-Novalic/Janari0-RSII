@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:janari0_mobile/screens/product_details_screen.dart';
+import 'package:janari0/screens/product_details_screen.dart';
 
 import '../model/product_sale.dart';
+import '../model/user.dart';
 
 class CustomCarousel extends StatelessWidget {
   final String text;
+  final User user;
   final List<ProductSale> productsSale;
   const CustomCarousel(
-      {super.key, required this.text, required this.productsSale});
+      {super.key,
+      required this.text,
+      required this.productsSale,
+      required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,9 @@ class CustomCarousel extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ProductDetailsScreen(
-                            productSale: productsSale.elementAt(index)))),
+                              productSale: productsSale.elementAt(index),
+                              user: user,
+                            ))),
                 child: Container(
                   width: 160,
                   height: 180,

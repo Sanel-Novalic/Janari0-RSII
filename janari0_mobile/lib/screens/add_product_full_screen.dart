@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:janari0_mobile/model/requests/photo_insert_request.dart';
-import 'package:janari0_mobile/model/requests/product_insert_request.dart';
+import 'package:janari0/model/requests/photo_insert_request.dart';
+import 'package:janari0/model/requests/product_insert_request.dart';
 import '../providers/product_provider.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
+import 'package:janari0/model/user.dart' as u;
 
 import 'main_screen.dart';
 

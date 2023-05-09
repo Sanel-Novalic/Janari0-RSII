@@ -19,7 +19,11 @@ public partial class User
 
     public string? Uid { get; set; }
 
+    public virtual ICollection<Buyer> Buyers { get; } = new List<Buyer>();
+
     public virtual Location? Location { get; set; }
 
     public virtual ICollection<Product> Products { get; } = new List<Product>();
+
+    public virtual ICollection<Seller> Sellers { get; } = new List<Seller>();
 }

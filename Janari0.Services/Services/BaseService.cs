@@ -42,7 +42,7 @@ namespace Janari0.Services.Services
             return query;
         }
 
-        public virtual T GetById(int id)
+        public virtual T? GetById(int id)
         {
             var set = Context.Set<TDb>();
 

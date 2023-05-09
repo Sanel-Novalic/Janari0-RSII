@@ -1,4 +1,4 @@
-import 'package:janari0_mobile/model/product.dart';
+import 'package:janari0/model/product.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product_sale.g.dart';
@@ -9,7 +9,11 @@ class ProductSale {
   Product? product;
   String? description = "";
   String price = "";
-  ProductSale({required this.product, this.description, required this.price});
+  ProductSale(
+      {this.productSaleId,
+      required this.product,
+      this.description,
+      required this.price});
 
   factory ProductSale.fromJson(Map<String, dynamic> json) =>
       _$ProductSaleFromJson(json);

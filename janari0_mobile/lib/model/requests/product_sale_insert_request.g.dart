@@ -12,6 +12,7 @@ ProductSaleInsertRequest _$ProductSaleInsertRequestFromJson(
       productId: json['productId'] as int,
       description: json['description'] as String?,
       price: json['price'] as String,
+      locationId: json['locationId'] as int,
     )..product = json['product'] == null
         ? null
         : Product.fromJson(json['product'] as Map<String, dynamic>);
@@ -23,4 +24,5 @@ Map<String, dynamic> _$ProductSaleInsertRequestToJson(
       'description': instance.description,
       'price': instance.price,
       'product': instance.product,
+      'locationId': instance.locationId,
     };

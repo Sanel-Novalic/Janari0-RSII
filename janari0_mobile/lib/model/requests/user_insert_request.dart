@@ -1,4 +1,4 @@
-import 'package:janari0_mobile/model/requests/location_CU_request.dart';
+import 'package:janari0/model/requests/location_CU_request.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_insert_request.g.dart';

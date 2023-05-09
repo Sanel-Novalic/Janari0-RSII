@@ -30,6 +30,10 @@ namespace Janari0.Services.Services
 
             var photos = Context.Photos.Where(x => x.ProductId == product.ProductId).ToList();
             product.Photos = Mapper.Map<List<Photo>>(photos);
+
+            var user = Context.Users.Where(x => x.UserId == product.UserId).FirstOrDefault();
+            product.User = Mapper.Map<User>(user);
+
             return Mapper.Map<Product>(product);
         }
 
@@ -60,6 +64,19 @@ namespace Janari0.Services.Services
                 }
             }
             return filteredQuery;
+        }
+        public override void BeforeDelete(Database.Product dbentity)
+        {
+            //PhotoService photoService = new(Context, Mapper);
+            //ProductsSaleService productsSaleService = new(Context, Mapper);
+            //foreach(var item in dbentity.Photos)
+            //{
+            //    photoService.Delete(item.PhotoId);
+            //}
+            //foreach(var item in dbentity.ProductsSales)
+            //{
+            //    productsSaleService.Delete(item.ProductSaleId);
+            //}
         }
     }
 }

@@ -1,4 +1,4 @@
-import 'package:janari0_mobile/model/photo.dart';
+import 'package:janari0/model/photo.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product.g.dart';

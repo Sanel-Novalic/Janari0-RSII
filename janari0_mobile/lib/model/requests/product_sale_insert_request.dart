@@ -10,8 +10,12 @@ class ProductSaleInsertRequest {
   String? description;
   String price;
   Product? product;
+  int locationId;
   ProductSaleInsertRequest(
-      {required this.productId, this.description, required this.price});
+      {required this.productId,
+      this.description,
+      required this.price,
+      required this.locationId});
 
   factory ProductSaleInsertRequest.fromJson(Map<String, dynamic> json) =>
       _$ProductSaleInsertRequestFromJson(json);

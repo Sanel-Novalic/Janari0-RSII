@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_picture_uploader/firebase_picture_uploader.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:janari0_mobile/providers/user_provider.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
-import 'package:janari0_mobile/screens/change_username_screen.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:janari0/providers/user_provider.dart';
+import 'package:janari0/model/user.dart' as u;
+import 'package:janari0/screens/change_username_screen.dart';
 import '../utils/long_white_button.dart';
 
 class EditProfile extends StatefulWidget {
@@ -14,6 +20,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfile extends State<EditProfile> {
   UserProvider userProvider = UserProvider();
+  List<UploadJob>? _pictures = [];
   @override
   void initState() {
     super.initState();
@@ -38,20 +45,41 @@ class _EditProfile extends State<EditProfile> {
           const SizedBox(
             height: 20,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircleAvatar(
-                backgroundImage: NetworkImage(
-                    "https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg"),
-                minRadius: 65,
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PictureUploadWidget(
+                    storageInstance: FirebaseStorage.instance,
+                    initialImages: _pictures,
+                    onPicturesChange: pictureCallback,
+                    buttonStyle: PictureUploadButtonStyle(),
+                    buttonText: 'Upload Picture',
+                    localization: PictureUploadLocalization(),
+                    settings: PictureUploadSettings(
+                        customUploadFunction: uploadPicture,
+                        imageSource: ImageSourceExtended.askUser,
+                        minImageCount: 1,
+                        maxImageCount: 1,
+                        imageManipulationSettings:
+                            const ImageManipulationSettings(
+                                enableCropping: false, compressQuality: 75)),
+                    enabled: true,
+                  ),
+                ],
               ),
+              const SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                  onPressed: () => changePicture(),
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                  child: const Text("Change profile picture")),
             ],
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          const Text("Change picture"),
           const SizedBox(
             height: 20,
           ),
@@ -81,5 +109,30 @@ class _EditProfile extends State<EditProfile> {
         ],
       ),
     );
+  }
+
+  void pictureCallback(
+      {List<UploadJob>? uploadJobs, bool? pictureUploadProcessing}) {
+    _pictures = uploadJobs;
+  }
+
+  Future<void> changePicture() async {
+    debugPrint(_pictures!.length.toString());
+    var picture = _pictures?.first;
+    var link = await picture!.storageReference!.getDownloadURL();
+
+    await FirebaseAuth.instance.currentUser!.updatePhotoURL(link);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Successfully updated the picture')));
+  }
+
+  Future<Reference> uploadPicture(CroppedFile file, int id) async {
+    Reference imgRef = FirebaseStorage.instance.ref().child(
+        "images/${FirebaseAuth.instance.currentUser!.uid}/profile/${id}_800");
+
+    await imgRef.putFile(File(file.path));
+
+    return imgRef;
   }
 }

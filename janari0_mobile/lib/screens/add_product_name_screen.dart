@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
+import 'package:janari0/model/user.dart' as u;
 import 'add_product_full_screen.dart';
 
 class AddProductName extends StatefulWidget {

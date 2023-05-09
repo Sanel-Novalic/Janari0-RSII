@@ -2,6 +2,7 @@
 using Janari0.Model.SearchObjects;
 using Janari0.Services.Context;
 using Janari0.Services.IServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace Janari0.Services.Services
 {
@@ -24,7 +25,13 @@ namespace Janari0.Services.Services
             return Mapper.Map<T>(entity);
         }
 
-        public virtual void BeforeInsert(TInsert insert, Tdb entity)
+        //BeforeInsert is for some specific operations we need to do before inserting into the database
+        public virtual void BeforeInsert(TInsert insert, Tdb dbentity)
+        {
+
+        }
+        //BeforeUpdate is for some specific operations we need to do before updating the database
+        public virtual void BeforeUpdate(TUpdate update, Tdb dbentity)
         {
 
         }
@@ -48,6 +55,37 @@ namespace Janari0.Services.Services
 
             return Mapper.Map<T>(entity);
 
+        }
+        //BeforeDelete is for some specific operations we need to do before deleting the object from databse
+        public virtual void BeforeDelete(Tdb dbentity)
+        {
+
+        }
+        public virtual void AfterDelete(Tdb dbentity)
+        {
+
+        }
+        public virtual T? Delete(int id)
+        {
+            var set = Context.Set<Tdb>();
+
+            var dbentity = set.Find(id);
+
+            if (dbentity == null)
+            {
+                return null;
+            }
+
+            var deletedEntity = dbentity;
+
+            BeforeDelete(deletedEntity);
+
+            set.Remove(dbentity);
+            AfterDelete(deletedEntity);
+
+            Context.SaveChanges();
+
+            return Mapper.Map<T>(deletedEntity);
         }
     }
 }

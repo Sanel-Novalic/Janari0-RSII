@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:janari0_mobile/screens/donate_product_screen.dart';
+import 'package:janari0/screens/donate_product_screen.dart';
 
 import '../model/product.dart';
 import '../model/user.dart';
@@ -52,6 +52,7 @@ class ExpandableSponsorFloatingButton extends StatelessWidget {
                       builder: (context) => DonateProductScreen(
                             products: products,
                             hasPrice: false,
+                            user: user,
                           )))),
           SpeedDialChild(
               backgroundColor: primaryColor,
@@ -64,6 +65,7 @@ class ExpandableSponsorFloatingButton extends StatelessWidget {
                       builder: (context) => DonateProductScreen(
                             products: products,
                             hasPrice: true,
+                            user: user,
                           )))),
         ],
       ),

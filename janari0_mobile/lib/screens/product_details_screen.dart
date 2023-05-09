@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_braintree/flutter_braintree.dart';
+import 'package:janari0/model/order.dart';
+import 'package:janari0/providers/order_provider.dart';
+import '../model/buyer.dart';
+import '../model/payment.dart';
 import '../model/product_sale.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import '../model/user.dart';
+import '../providers/buyer_provider.dart';
+import '../providers/payment_provider.dart';
 import '../providers/product_provider.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   static const String routeName = "/product_details";
+  final User user;
   final ProductSale productSale;
-  const ProductDetailsScreen({super.key, required this.productSale});
+  const ProductDetailsScreen(
+      {super.key, required this.productSale, required this.user});
   @override
   State<StatefulWidget> createState() => _ProductDetailsScreen();
 }
@@ -15,12 +25,31 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreen extends State<ProductDetailsScreen> {
   ProductProvider productProvider = ProductProvider();
   CarouselController carouselController = CarouselController();
+  PaymentProvider paymentProvider = PaymentProvider();
+  OrderProvider orderProvider = OrderProvider();
+  BuyerProvider buyerProvider = BuyerProvider();
   List<String> photoLinks = [];
   int _current = 0;
+  var isLoading = false;
+  var isNotified = false;
+  var isCorrect = true;
   @override
   void initState() {
     super.initState();
     photoLinks.addAll(widget.productSale.product!.photos.map((e) => e.link!));
+  }
+
+  void _buildLoading() {
+    if (isLoading == true) {
+      showDialog(
+          context: context,
+          builder: (BuildContext build) => const AlertDialog(
+                title: Text("Loading.."),
+                content: CircularProgressIndicator(),
+              ));
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -97,8 +126,258 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
                   style: const TextStyle(color: Colors.grey)),
             ),
           ),
+          const Spacer(),
+          ElevatedButton(
+            onPressed: () =>
+                widget.productSale.price == "Free" ? orderItem() : buyItem(),
+            style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+            child: const Text('Order'),
+          ),
         ],
       ),
     );
+  }
+
+  Future<dynamic> _buildDialog(String title, String content) {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(
+                title,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              content: Text(
+                content,
+                style: const TextStyle(
+                    color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Ok")),
+              ],
+            ));
+  }
+
+  buyItem() async {
+    bool block = true;
+    // Need to implement payment system here onPressed (checkout button)
+    var tokenKey = 'sandbox_mfhs47gw_r4gzjpxcvzxmfdvg';
+    var request = BraintreePayPalRequest(amount: widget.productSale.price);
+    Payment payment = Payment();
+    payment.successful = false;
+    List<Payment> payments = [];
+    int paymentsFailed = 0;
+    await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(
+                "Important Information !",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              content: const Text(
+                "You're going to be redirected to Paypal to finish your payment!\nNote: If you want to canel your payment you can do so on PayPal!",
+                style: TextStyle(
+                    color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      setState(() {
+                        block = false;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok")),
+              ],
+            ));
+    List<Map> items = [];
+    Buyer buyerData = Buyer();
+    buyerData.userId = widget.user.userId;
+    buyerData.status = false;
+    var buyer = await buyerProvider.insert(buyerData);
+    if (block == false) {
+      request = BraintreePayPalRequest(
+        amount: widget.productSale.price,
+        currencyCode: "USD",
+        displayName: "eCodes",
+      );
+      var result = await Braintree.requestPaypalNonce(tokenKey, request);
+      if (result != null) {
+        // Call the server-side transaction here
+        payment.amount = double.parse(widget.productSale.price);
+        payment.buyerId = buyer?.buyerId;
+        payment.paymentMethodNonce = result.nonce;
+        payment.productSaleId = widget.productSale.productSaleId;
+        payment.successful = false;
+        Payment? transaction;
+        // Check if buyer used loyaltypoints and then add them to payment variabl
+        setState(() {
+          isLoading = true;
+        });
+        _buildLoading();
+        try {
+          transaction = await paymentProvider.beginTransaction(payment);
+        } catch (e) {
+          await _buildDialog("Error", e.toString());
+        }
+        setState(() {
+          isLoading = false;
+        });
+        _buildLoading();
+        if (transaction?.successful == true) {
+          payments.add(transaction!);
+          if (!mounted) return;
+          await showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                    title: Text(
+                      "Payment successful!",
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    content: Text(
+                      "Successfully paid for product ${widget.productSale.product!.name}\nPrice: ${transaction?.amount} EUR ",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            setState(() {
+                              payment.successful = true;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Ok")),
+                    ],
+                  ));
+          items.add({
+            "productSaleId": widget.productSale.productSaleId,
+          });
+        }
+      } else {
+        paymentsFailed++;
+        if (!mounted) return;
+        await showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+                  title: Text(
+                    "Important Information !",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  content: Text(
+                    "Payment was cancelled for product ${widget.productSale.product!.name}!",
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 107, 107, 107),
+                        fontSize: 18),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            block = false;
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Ok")),
+                  ],
+                ));
+        return;
+      }
+    }
+    Map order = {
+      "items": items,
+      "status": true,
+      "canceled": false,
+      "buyerId": payment.buyerId,
+      "price": payment.amount
+    };
+    if (paymentsFailed == 0) {
+      var returnedOrder = await orderProvider.insert(order);
+      var insertedOrder = await orderProvider.getById(returnedOrder!.orderId!);
+      var output =
+          await paymentProvider.saveTransaction(insertedOrder.orderId!);
+
+      if (!mounted) return;
+      await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+                title: Text(
+                  "Transaction completed successfully",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                content: Text(
+                  "Successfully paid for order number: ${insertedOrder.orderNumber}, with total price of ${output?.price} EUR. ",
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Ok")),
+                  TextButton(
+                      onPressed: () async {
+                        //Navigator.pushNamed(context,
+                        //    "${OrderItemsScreen.routeName}/${insertedOrder.orderId}");
+                      },
+                      child: const Text("Order Details")),
+                ],
+              ));
+    } else {
+      await _buildDialog("Payment failed!",
+          "Something went wrong with the payment system. Please, try again later!");
+    }
+  }
+
+  orderItem() async {
+    List<Map> items = [];
+    items.add({
+      "productSaleId": widget.productSale.productSaleId,
+    });
+    Buyer buyerData = Buyer();
+    buyerData.userId = widget.user.userId;
+    buyerData.status = false;
+    var buyer = await buyerProvider.insert(buyerData);
+    Map order = {
+      "items": items,
+      "status": true,
+      "canceled": false,
+      "buyerId": buyer?.buyerId,
+      "price": 0
+    };
+    var returnedOrder = await orderProvider.insert(order);
+    await paymentProvider.saveTransaction(returnedOrder!.orderId!);
+    if (!mounted) return;
+    await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(
+                "Order initiated successfully",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              content: Text(
+                "Successfully ordered with order number: ${returnedOrder.orderNumber}",
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok")),
+                TextButton(
+                    onPressed: () async {
+                      //Navigator.pushNamed(context,
+                      //    "${OrderItemsScreen.routeName}/${insertedOrder.orderId}");
+                    },
+                    child: const Text("Order Details")),
+              ],
+            ));
   }
 }

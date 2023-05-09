@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:janari0_mobile/providers/location_provider.dart';
-import 'package:janari0_mobile/providers/product_provider.dart';
-import 'package:janari0_mobile/providers/product_sale_provider.dart';
-import 'package:janari0_mobile/qr_code_scanner.dart';
-import 'package:janari0_mobile/screens/profile_screen.dart';
+import 'package:janari0/providers/location_provider.dart';
+import 'package:janari0/providers/product_provider.dart';
+import 'package:janari0/providers/product_sale_provider.dart';
+import 'package:janari0/qr_code_scanner.dart';
+import 'package:janari0/screens/profile_screen.dart';
+import 'package:search_page/search_page.dart';
 import '../model/product.dart';
 import '../model/product_sale.dart';
 import '../model/requests/location_CU_request.dart';
@@ -13,7 +14,7 @@ import '../providers/user_provider.dart';
 import '../utils/custom_popup_button.dart';
 import '../utils/carousel.dart';
 import '../utils/custom_outline_button.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
+import 'package:janari0/model/user.dart' as u;
 import 'package:location/location.dart';
 
 class MainScreen extends StatefulWidget {
@@ -29,7 +30,10 @@ class _MainScreen extends State<MainScreen> {
   List<Product> nearlyExpiredProducts = [];
   List<Product> expiredProducts = [];
   List<Product> products = [];
-  late List<ProductSale> productsSale;
+  late List<ProductSale> nearbyProducts;
+  late List<ProductSale> freeProducts;
+  List<ProductSale> allProductsSale = [];
+  List<ProductSale> recommendedProductsSale = [];
   ProductProvider productProvider = ProductProvider();
   UserProvider userProvider = UserProvider();
   ProductSaleProvider productSaleProvider = ProductSaleProvider();
@@ -42,7 +46,7 @@ class _MainScreen extends State<MainScreen> {
     myFuture = loadData();
   }
 
-  void getLocation(u.User user) async {
+  Future getLocation(u.User user) async {
     Location location = Location();
 
     bool serviceEnabled;
@@ -69,8 +73,21 @@ class _MainScreen extends State<MainScreen> {
     LocationProvider locationProvider = LocationProvider();
     var locationUpdateRequest = LocationCURequest(
         latitude: locationData.latitude!, longitude: locationData.longitude!);
-    locationProvider.update(user.locationId, locationUpdateRequest);
-    print("HALLE");
+    await locationProvider.update(user.locationId, locationUpdateRequest);
+
+    print("ADA");
+    var searchRequest = {
+      'carousel': "Nearby",
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude
+    };
+    nearbyProducts = await productSaleProvider.getCarouselData(searchRequest);
+    searchRequest = {
+      'carousel': "Free",
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude
+    };
+    freeProducts = await productSaleProvider.getCarouselData(searchRequest);
   }
 
   Future<List<ProductSale>> loadData() async {
@@ -89,16 +106,18 @@ class _MainScreen extends State<MainScreen> {
       }
     }
     var tmpUser = await userProvider.get(searchRequest);
-    user = tmpUser.first;
-    var tmpSale = await productSaleProvider.get(null);
-
+    allProductsSale = await productSaleProvider.get(null);
+    print(allProductsSale.first.product?.name ?? "NULl");
+    await getLocation(user);
+    recommendedProductsSale =
+        (await productSaleProvider.getRecommended(user.userId))!;
+    print(recommendedProductsSale.first.product!.name);
     setState(() {
       user = tmpUser.first;
       products = tmpData;
-      productsSale = tmpSale;
     });
-    getLocation(user);
-    return productsSale;
+
+    return nearbyProducts;
   }
 
   @override
@@ -114,13 +133,88 @@ class _MainScreen extends State<MainScreen> {
           ),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.search),
-              tooltip: 'Show search bar',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('This is a snackbar')));
-              },
-            ),
+                icon: const Icon(Icons.search),
+                tooltip: 'Show search bar',
+                onPressed: () {
+                  showSearch(
+                      context: context,
+                      delegate: SearchPage<ProductSale>(
+                        items: allProductsSale,
+                        searchLabel: 'Search products on sale',
+                        suggestion: ListView.builder(
+                          itemCount: recommendedProductsSale.length,
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int i) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Card(
+                                child: Row(
+                              children: [
+                                Image(
+                                  image: NetworkImage(recommendedProductsSale[i]
+                                          .product!
+                                          .photos
+                                          .isNotEmpty
+                                      ? recommendedProductsSale[i]
+                                          .product!
+                                          .photos
+                                          .first
+                                          .link!
+                                      : 'https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg'),
+                                  fit: BoxFit.fitWidth, // use this
+                                  height: 60,
+                                  width: 120,
+                                ),
+                                const SizedBox(
+                                  width: 50,
+                                ),
+                                Column(
+                                  children: [
+                                    Text(recommendedProductsSale[i]
+                                        .product!
+                                        .name!),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )),
+                          ),
+                        ),
+                        failure: const Center(
+                          child: Text('No product found :('),
+                        ),
+                        filter: (product) => [
+                          product.product?.name,
+                        ],
+                        builder: (productSale) => Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Card(
+                              child: Row(
+                            children: [
+                              Image(
+                                image: NetworkImage(productSale
+                                        .product!.photos.isNotEmpty
+                                    ? productSale.product!.photos.first.link!
+                                    : 'https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg'),
+                                fit: BoxFit.fitWidth, // use this
+                                height: 60,
+                                width: 120,
+                              ),
+                              const SizedBox(
+                                width: 50,
+                              ),
+                              Text(productSale.product!.name!),
+                              const SizedBox(
+                                width: 50,
+                              ),
+                              Text(productSale.price)
+                            ],
+                          )),
+                        ),
+                      ));
+                }),
             IconButton(
               icon: const Icon(Icons.question_mark),
               tooltip: 'Show tutorial',
@@ -187,27 +281,39 @@ class _MainScreen extends State<MainScreen> {
                         children: [
                           CustomOutlineButton(
                               text: 'Fresh',
-                              number: freshProducts.length,
                               color: Colors.green,
                               products: freshProducts),
                           CustomOutlineButton(
                             text: 'Within one week',
-                            number: nearlyExpiredProducts.length,
                             color: Colors.yellow,
                             products: nearlyExpiredProducts,
                           ),
                           CustomOutlineButton(
                             text: 'Expired',
-                            number: expiredProducts.length,
                             color: Colors.red,
                             products: expiredProducts,
                           ),
                         ],
                       ),
                       const SizedBox(height: 85),
+                      Align(
+                          alignment: Alignment.bottomRight,
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                loadData().then((value) =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Refreshed'))));
+                              });
+                            },
+                            icon: const Icon(Icons.refresh),
+                            iconSize: 20,
+                          )),
                       CustomCarousel(
                         text: "Nearby",
-                        productsSale: productsSale,
+                        productsSale: nearbyProducts,
+                        user: user,
                       ),
                       const SizedBox(
                         height: 50,
@@ -219,8 +325,9 @@ class _MainScreen extends State<MainScreen> {
                           image: NetworkImage(
                               "https://developers.google.com/static/admob/images/ios-testad-0-admob.png")),
                       CustomCarousel(
-                        text: "Nearby",
-                        productsSale: productsSale,
+                        text: "Free",
+                        productsSale: freeProducts,
+                        user: user,
                       ),
                     ],
                   ),

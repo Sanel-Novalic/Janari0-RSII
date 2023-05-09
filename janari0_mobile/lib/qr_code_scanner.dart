@@ -4,7 +4,7 @@ import 'package:openfoodfacts/openfoodfacts.dart';
 import 'screens/add_product_name_screen.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
+import 'package:janari0/model/user.dart' as u;
 
 class QRCodeScanner {
   static Future<Product?> getProduct(String barcode) async {

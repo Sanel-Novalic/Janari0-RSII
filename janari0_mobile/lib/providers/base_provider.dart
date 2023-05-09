@@ -4,6 +4,10 @@ import 'dart:async';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
+import 'package:janari0/model/product_sale.dart';
+
+import '../model/order.dart';
+import '../model/payment.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   String? _baseUrl;
@@ -42,13 +46,15 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
 
     var uri = Uri.parse(url);
-
+    print("DWAD");
     Map<String, String> headers = createHeaders();
     var response = await http!.get(uri, headers: headers);
-
+    print("DWAdddD");
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
-      return data.map((x) => fromJson(x)).cast<T>().toList();
+      print("DWAD");
+      //return data.map((x) => fromJson(x)).cast<T>().toList();
+      return List<T>.empty();
     } else {
       throw Exception("Exception... handle this gracefully");
     }
@@ -65,6 +71,27 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
       return fromJson(data);
+    } else {
+      throw Exception("Exception... handle this gracefully");
+    }
+  }
+
+  Future<List<T>> getCarouselData([dynamic search]) async {
+    var url = "$_baseUrl$_endpoint/GetCarouselData";
+
+    if (search != null) {
+      String queryString = getQueryString(search);
+      url = "$url?$queryString";
+    }
+
+    var uri = Uri.parse(url);
+
+    Map<String, String> headers = createHeaders();
+    var response = await http!.get(uri, headers: headers);
+
+    if (isValidResponseCode(response)) {
+      var data = jsonDecode(response.body);
+      return data.map((x) => fromJson(x)).cast<T>().toList();
     } else {
       throw Exception("Exception... handle this gracefully");
     }
@@ -95,6 +122,22 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     var response =
         await http!.put(uri, headers: headers, body: jsonEncode(request));
+
+    if (isValidResponseCode(response)) {
+      var data = jsonDecode(response.body);
+      return fromJson(data);
+    } else {
+      return null;
+    }
+  }
+
+  Future<T?> delete(int id) async {
+    var url = "$_baseUrl$_endpoint/$id";
+    var uri = Uri.parse(url);
+
+    Map<String, String> headers = createHeaders();
+
+    var response = await http!.delete(uri, headers: headers);
 
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
@@ -140,6 +183,26 @@ abstract class BaseProvider<T> with ChangeNotifier {
     return query;
   }
 
+  Future<List<T>?> getRecommended(int id) async {
+    if (T == ProductSale) {
+      var url = "$_baseUrl$_endpoint/$id/Recommend";
+
+      var uri = Uri.parse(url);
+
+      Map<String, String> headers = createHeaders();
+      var response = await http!.get(uri, headers: headers);
+
+      if (isValidResponseCode(response)) {
+        var data = jsonDecode(response.body);
+        return data.map((x) => fromJson(x)).cast<T>().toList();
+      } else {
+        throw Exception("Exception... handle this gracefully");
+      }
+    } else {
+      return null;
+    }
+  }
+
   bool isValidResponseCode(Response response) {
     if (response.statusCode == 200) {
       if (response.body != "") {
@@ -161,6 +224,55 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw Exception("Internal server error");
     } else {
       throw Exception("Exception... handle this gracefully");
+    }
+  }
+
+  Future<T?> beginTransaction(dynamic payment) async {
+    if (T == Payment) {
+      var url = "$_baseUrl$_endpoint/BeginTransaction";
+      var uri = Uri.parse(url);
+
+      Map<String, String> headers = createHeaders();
+
+      var jsonRequest = jsonEncode(payment);
+      var response = await http!.post(uri, headers: headers, body: jsonRequest);
+
+      if (isValidResponseCode(response)) {
+        var data = jsonDecode(response.body);
+        return fromJson(data);
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  Future<Order?> saveTransaction(int orderId) async {
+    if (T == Payment) {
+      var url = "$_baseUrl$_endpoint/SaveTransaction";
+      var query = {'orderId': orderId};
+
+      String queryString = getQueryString(query);
+      url = "$url?$queryString";
+
+      var uri = Uri.parse(url);
+
+      Map<String, String> headers = createHeaders();
+
+      var response = await http!.post(uri, headers: headers);
+
+      if (isValidResponseCode(response)) {
+        var data = jsonDecode(response.body);
+        if (data == null) {
+          return null;
+        }
+        return Order.fromJson(data);
+      } else {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 }

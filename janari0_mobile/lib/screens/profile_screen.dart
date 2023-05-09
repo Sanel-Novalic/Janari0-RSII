@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:janari0_mobile/main.dart';
-import 'package:janari0_mobile/model/user.dart' as u;
-import 'package:janari0_mobile/screens/show_products_screen.dart';
+import 'package:janari0/main.dart';
+import 'package:janari0/model/user.dart' as u;
+import 'package:janari0/screens/show_orders_screen.dart';
+import 'package:janari0/screens/show_products_screen.dart';
 
 import '../model/product.dart';
 import 'edit_profile_screen.dart';
@@ -41,8 +42,9 @@ class _Profile extends State<Profile> {
               const SizedBox(
                 width: 30,
               ),
-              const CircleAvatar(
-                backgroundImage: NetworkImage(
+              CircleAvatar(
+                backgroundImage: NetworkImage(FirebaseAuth
+                        .instance.currentUser!.photoURL ??
                     "https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg"),
                 minRadius: 55,
               ),
@@ -70,9 +72,11 @@ class _Profile extends State<Profile> {
               child: ElevatedButton(
                 onPressed: () => {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditProfile(user: widget.user)))
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditProfile(user: widget.user)))
+                      .then((value) => setState(() => {}))
                 },
                 style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
                 child: const Text('Edit profile'),
@@ -129,7 +133,13 @@ class _Profile extends State<Profile> {
             child: Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18),
               child: ElevatedButton(
-                  onPressed: () => {},
+                  onPressed: () => {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ShowOrders(
+                                    user: widget.user, text: "Orders")))
+                      },
                   style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.white,
@@ -138,7 +148,7 @@ class _Profile extends State<Profile> {
                   child: Row(
                     children: const [
                       Icon(
-                        Icons.article,
+                        Icons.local_shipping,
                         color: Colors.black,
                         size: 25,
                       ),
@@ -146,7 +156,7 @@ class _Profile extends State<Profile> {
                         width: 12,
                       ),
                       Text(
-                        'Articles',
+                        'Orders',
                         style: TextStyle(color: Colors.black),
                       ),
                     ],
