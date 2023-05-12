@@ -12,49 +12,52 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //var drawer = Provider.of<MenuAppController>(context, listen: false);
+    var drawer = Provider.of<MenuAppController>(context, listen: false);
     return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Image.asset("assets/images/logo.png"),
+      child: Column(children: [
+        DrawerHeader(
+          child: Image.asset("assets/images/logo.png"),
+        ),
+        DrawerListTile(
+          title: "Users",
+          press: () {
+            drawer.setCurrentDrawer(0);
+          },
+        ),
+        DrawerListTile(
+          title: "Products",
+          press: () {
+            drawer.setCurrentDrawer(1);
+          },
+        ),
+        DrawerListTile(
+          title: "ProductsSale",
+          press: () {
+            drawer.setCurrentDrawer(2);
+          },
+        ),
+        DrawerListTile(
+          title: "Orders",
+          press: () {
+            drawer.setCurrentDrawer(3);
+          },
+        ),
+        DrawerListTile(
+          title: "Output",
+          press: () {
+            drawer.setCurrentDrawer(4);
+          },
+        ),
+        Expanded(
+          child: Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: DrawerListTile(
+              title: "Log out",
+              press: () {},
+            ),
           ),
-          DrawerListTile(
-            title: "Dashboard",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Users",
-            press: () {
-              //drawer.setCurrentDrawer(0);
-            },
-          ),
-          DrawerListTile(
-            title: "Products",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "ProductsSale",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Orders",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Output",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Profile",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Settings",
-            press: () {},
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 }

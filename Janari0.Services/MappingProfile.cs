@@ -43,6 +43,10 @@ namespace Janari0.Services
             {
                 opts.Condition((src, dest, srcMember) => srcMember != null);
             });
+            CreateMap<OutputUpdateRequest, Database.Output>().ForAllMembers(opts =>
+            {
+                opts.Condition((src, dest, srcMember) => srcMember != null);
+            });
             CreateMap<OutputItemUpsertRequest, Database.OutputItem>().ForAllMembers(opts =>
             {
                 opts.Condition((src, dest, srcMember) => srcMember != null);

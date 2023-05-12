@@ -19,6 +19,7 @@ class CustomFormField {
       double? borderRadius,
       //
       TextStyle? labelTextStyle,
+      Color cursorColor = Colors.black,
       //
       Color? borderColor}) {
     BorderRadius borderRadius_;
@@ -34,7 +35,7 @@ class CustomFormField {
           maxLines: null,
           initialValue: initialValue,
           textAlign: TextAlign.left,
-          cursorColor: Colors.black,
+          cursorColor: cursorColor,
           style: TextStyle(
             fontSize: fieldTextFontSize,
           ),

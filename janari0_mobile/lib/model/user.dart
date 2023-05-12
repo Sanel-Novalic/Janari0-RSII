@@ -7,8 +7,8 @@ class User {
   int userId = 1;
   String username = "";
   String email = "";
-  String phoneNumber = "";
-  int locationId = 1;
+  String? phoneNumber = "";
+  int? locationId = 1;
   User();
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

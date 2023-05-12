@@ -10,8 +10,8 @@ User _$UserFromJson(Map<String, dynamic> json) => User()
   ..userId = json['userId'] as int
   ..username = json['username'] as String
   ..email = json['email'] as String
-  ..phoneNumber = json['phoneNumber'] as String
-  ..locationId = json['locationId'] as int;
+  ..phoneNumber = json['phoneNumber'] as String?
+  ..locationId = json['locationId'] as int?;
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'userId': instance.userId,

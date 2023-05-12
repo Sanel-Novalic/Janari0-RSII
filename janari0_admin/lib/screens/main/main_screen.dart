@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 
 import '../../controllers/MenuAppController.dart';
 import '../dashboard/dashboard_screen.dart';
+import '../login.dart';
 import 'components/side_menu.dart';
 
 class MainScreen extends StatefulWidget {
-  static const String routeName = "/main";
   const MainScreen({super.key});
 
   @override

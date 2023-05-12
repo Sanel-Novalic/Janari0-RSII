@@ -50,6 +50,7 @@ namespace Janari0.Services.Services
             {
                 return null;
             }
+            Context.Entry(entity).State = EntityState.Modified;
 
             Context.SaveChanges();
 

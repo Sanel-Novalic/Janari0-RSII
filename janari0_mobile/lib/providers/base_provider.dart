@@ -33,6 +33,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   Map<String, String> createHeaders() {
     var headers = {
       "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"
     };
     return headers;
   }
@@ -46,18 +47,22 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
 
     var uri = Uri.parse(url);
-    print("DWAD");
+
     Map<String, String> headers = createHeaders();
-    var response = await http!.get(uri, headers: headers);
-    print("DWAdddD");
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      print("DWAD");
-      //return data.map((x) => fromJson(x)).cast<T>().toList();
-      return List<T>.empty();
-    } else {
-      throw Exception("Exception... handle this gracefully");
+    print(uri);
+    try {
+      var response = await http!.get(uri, headers: headers);
+      if (isValidResponseCode(response)) {
+        var data = jsonDecode(response.body);
+        return data.map((x) => fromJson(x)).cast<T>().toList();
+      } else {
+        throw Exception("Exception... handle this gracefully");
+      }
+    } catch (e) {
+      print("Error");
+      print(e.toString());
     }
+    return List<T>.empty();
   }
 
   Future<T> getById(int id, [dynamic additionalData]) async {
@@ -200,6 +205,25 @@ abstract class BaseProvider<T> with ChangeNotifier {
       }
     } else {
       return null;
+    }
+  }
+
+  Future login(String username, String password) async {
+    var url = "$_baseUrl$_endpoint/Login";
+
+    var object = {"username": username, "password": password};
+    String queryString = getQueryString(object);
+    url = "$url?$queryString";
+    print(url);
+    var uri = Uri.parse(url);
+    print(uri);
+    Map<String, String> headers = createHeaders();
+    var response = await http!.get(uri, headers: headers);
+
+    if (isValidResponseCode(response)) {
+      return;
+    } else {
+      throw Exception("Exception... handle this gracefully");
     }
   }
 

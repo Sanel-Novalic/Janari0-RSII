@@ -19,6 +19,10 @@ public partial class User
 
     public string? Uid { get; set; }
 
+    public string? PasswordHash { get; set; }
+
+    public string? PasswordSalt { get; set; }
+
     public virtual ICollection<Buyer> Buyers { get; } = new List<Buyer>();
 
     public virtual Location? Location { get; set; }

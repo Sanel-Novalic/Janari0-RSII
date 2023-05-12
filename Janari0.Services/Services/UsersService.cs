@@ -2,8 +2,11 @@
 using Janari0.Model.SearchObjects;
 using Janari0.Services.Context;
 using Janari0.Services.Exceptions;
+using Janari0.Services.HelperMethods;
 using Janari0.Services.IServices;
 using Janari0.Services.Requests;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Janari0.Services.Services
@@ -39,12 +42,7 @@ namespace Janari0.Services.Services
         public override Model.User? Update(int id, UserUpdateRequest update)
         {
             var set = Context.Set<Database.User>();
-
-            var entity = set.Find(id);
-
-            if (entity == null) {
-                throw new UserErrorException("User was not found.");
-            }
+        
             if(update.Username != null)
             {
                 if(update.Username.Length < 3)
@@ -56,10 +54,19 @@ namespace Janari0.Services.Services
                     throw new UserErrorException("Username already exists!");
                 }
             }
-            Mapper.Map(update, entity);
+            var entity = set.Find(id);
 
+            
+            if (entity == null)
+            {
+                throw new UserErrorException("User not found.");
+            }
+            entity.Username = update.Username == null ? entity.Username : update.Username;
+            entity.PhoneNumber = update.PhoneNumber == null ? entity.PhoneNumber : update.PhoneNumber;
+
+            Context.Entry(entity).State = EntityState.Modified;
             Context.SaveChanges();
-
+        
             return Mapper.Map<Model.User>(entity);
         }
         public override IQueryable<Database.User> AddFilter(IQueryable<Database.User> query, UserSearchObject? search = null)
@@ -72,6 +79,20 @@ namespace Janari0.Services.Services
             }
 
             return filteredQuery;
+        }
+        public Model.User Login(string username, string password)
+        {
+            var entity = Context.Users.FirstOrDefault(x => x.Username == username);
+
+            if (entity == null || entity.Role != "admin")
+                return null;
+
+            var hash = HashingAndSaltingMethod.GenerateHash(entity.PasswordSalt, password);
+
+            if (hash != entity.PasswordHash)
+                throw new UserErrorException("Invalid login");
+
+            return Mapper.Map<Model.User>(entity);
         }
     }
 }

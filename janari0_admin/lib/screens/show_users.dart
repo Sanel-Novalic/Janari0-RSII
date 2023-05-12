@@ -71,7 +71,7 @@ DataRow dataRow(User info) {
       ),
       DataCell(Text(info.username)),
       DataCell(Text(info.email)),
-      DataCell(Text(info.phoneNumber)),
+      DataCell(Text(info.phoneNumber!)),
       //DataCell(Text(info.uid)),
     ],
   );

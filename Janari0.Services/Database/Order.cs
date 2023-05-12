@@ -21,7 +21,7 @@ public partial class Order
 
     public virtual Buyer? Buyer { get; set; }
 
-    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public virtual ICollection<OrderItem> OrderItems { get; } = new List<OrderItem>();
 
     public virtual ICollection<Output> Outputs { get; } = new List<Output>();
 }

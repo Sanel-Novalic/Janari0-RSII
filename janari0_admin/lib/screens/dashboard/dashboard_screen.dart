@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:janari0/model/order.dart';
+import 'package:janari0/model/output.dart';
+import 'package:janari0/model/product.dart';
+import 'package:janari0/model/product_sale.dart';
 import 'package:janari0/model/user.dart';
+import 'package:janari0/providers/order_provider.dart';
+import 'package:janari0/providers/output_provider.dart';
+import 'package:janari0/providers/product_provider.dart';
+import 'package:janari0/providers/product_sale_provider.dart';
 import 'package:janari0/providers/user_provider.dart';
 import 'package:janari0_admin/controllers/MenuAppController.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
+import 'package:get/get.dart';
+
+import '../edit_row.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const String routeName = "/main";
@@ -13,24 +24,40 @@ class DashboardScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _DashboardScreen();
 }
 
+UserProvider userProvider = UserProvider();
+ProductProvider productProvider = ProductProvider();
+ProductSaleProvider productSaleProvider = ProductSaleProvider();
+OrderProvider orderProvider = OrderProvider();
+OutputProvider outputProvider = OutputProvider();
+List<User> users = [];
+List<Product> products = [];
+List<ProductSale> productsSale = [];
+List<Order> orders = [];
+List<Output> outputs = [];
+
 class _DashboardScreen extends State<DashboardScreen> {
-  UserProvider userProvider = UserProvider();
-  List<User> users = [];
   List<Widget> widgets = [];
   late Future<List<User>> myFuture;
   @override
   void initState() {
     super.initState();
-    myFuture = loadData();
+    myFuture = loadData().then((value) {
+      createWidgets();
+      return value;
+    });
+  }
+
+  void update() {
+    setState(() {});
   }
 
   Future<List<User>> loadData() async {
-    print("ADWAs");
-    var data = userProvider.get();
-    print("ADWAddd");
-    setState(() {
-      data.then((value) => users = value);
-    });
+    users = await userProvider.get();
+    products = await productProvider.get();
+    productsSale = await productSaleProvider.get();
+    orders = await orderProvider.get();
+    outputs = await outputProvider.get();
+    print(products.length);
     return users;
   }
 
@@ -53,30 +80,9 @@ class _DashboardScreen extends State<DashboardScreen> {
     );
   }
 
-  DataRow userRow(User info) {
-    return DataRow(
-      cells: [
-        DataCell(
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                child: Text(info.userId as String),
-              ),
-            ],
-          ),
-        ),
-        DataCell(Text(info.username)),
-        DataCell(Text(info.email)),
-        DataCell(Text(info.phoneNumber)),
-        //DataCell(Text(info.uid)),
-      ],
-    );
-  }
-
-  void createWidgets() {
-    // Users
-    widgets.add(Container(
+  Widget table(String headline, Text col1, Text col2, Text col3,
+      DataTableSource source) {
+    return Container(
       padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -85,39 +91,214 @@ class _DashboardScreen extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Users",
+            headline,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           SizedBox(
             width: double.infinity,
-            child: DataTable(
-              columnSpacing: defaultPadding,
-              // minWidth: 600,
-              columns: const [
-                DataColumn(
-                  label: Text("UserID"),
-                ),
-                DataColumn(
-                  label: Text("Username"),
-                ),
-                DataColumn(
-                  label: Text("Email"),
-                ),
-                DataColumn(
-                  label: Text("Phone number"),
-                ),
-                DataColumn(
-                  label: Text("Uid"),
-                ),
-              ],
-              rows: List.generate(
-                users.length,
-                (index) => userRow(users[index]),
-              ),
-            ),
+            child: PaginatedDataTable(
+                columnSpacing: defaultPadding,
+                rowsPerPage: 10,
+                columns: [
+                  DataColumn(
+                    label: col1,
+                  ),
+                  DataColumn(
+                    label: col2,
+                  ),
+                  DataColumn(
+                    label: col3,
+                  ),
+                  const DataColumn(
+                    label: Text("Actions"),
+                  ),
+                ],
+                source: source),
           ),
         ],
       ),
-    ));
+    );
   }
+
+  void createWidgets() {
+    // Users
+    try {
+      widgets.add(table("Users", const Text("UserID"), const Text("Username"),
+          const Text("Email"), UsersData(update: update)));
+      widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
+          const Text("Expiration Date"), ProductsData(update: update)));
+      widgets.add(table(
+          "ProductsSale",
+          const Text("ProductSaleID"),
+          const Text("Price"),
+          const Text("Description"),
+          ProductsSaleData(update: update)));
+      widgets.add(table("Orders", const Text("OrderID"), const Text("Price"),
+          const Text("Status"), OrderData(update: update)));
+      widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
+          const Text("Concluded"), OutputData(update: update)));
+    } catch (e) {
+      print("ERr");
+      print(e.toString());
+    }
+  }
+}
+
+Widget actions(dynamic row, Function() update) {
+  return Row(
+    children: [
+      InkWell(
+        onTap: () => {
+          Get.to(() => EditRow(
+                    row: row,
+                  ))!
+              .then((value) => {update()})
+        },
+        child: const Text(
+          'Edit',
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+      const Text(' | '),
+      InkWell(
+        onTap: () => {},
+        child: const Text(
+          'Details',
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+      const Text(' | '),
+      InkWell(
+        onTap: () => {},
+        child: const Text(
+          'Delete',
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+class UsersData extends DataTableSource {
+  final VoidCallback update;
+
+  UsersData({required this.update});
+  @override
+  DataRow? getRow(int index) {
+    final user = users[index];
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(user.userId.toString())),
+      DataCell(Text(user.username)),
+      DataCell(Text(user.email)),
+      DataCell(actions(user, update))
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => users.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
+class ProductsData extends DataTableSource {
+  final Function() update;
+
+  ProductsData({required this.update});
+  @override
+  DataRow? getRow(int index) {
+    final product = products[index];
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(product.productId.toString())),
+      DataCell(Text(product.name!)),
+      DataCell(Text(product.expirationDate!.toIso8601String())),
+      DataCell(actions(product, update))
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => products.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
+class ProductsSaleData extends DataTableSource {
+  final Function() update;
+
+  ProductsSaleData({required this.update});
+  @override
+  DataRow? getRow(int index) {
+    final productSale = productsSale[index];
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(productSale.productSaleId.toString())),
+      DataCell(Text(productSale.price)),
+      DataCell(Text(productSale.description!)),
+      DataCell(actions(productSale, update))
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => productsSale.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
+class OrderData extends DataTableSource {
+  final Function() update;
+
+  OrderData({required this.update});
+  @override
+  DataRow? getRow(int index) {
+    final order = orders[index];
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(order.orderId.toString())),
+      DataCell(Text(order.date!)),
+      DataCell(Text(order.status.toString())),
+      DataCell(actions(order, update))
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => orders.length;
+  @override
+  int get selectedRowCount => 0;
+}
+
+class OutputData extends DataTableSource {
+  final Function() update;
+
+  OutputData({required this.update});
+  @override
+  DataRow? getRow(int index) {
+    final output = outputs[index];
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(output.outputId.toString())),
+      DataCell(Text(output.amount.toString())),
+      DataCell(Text(output.concluded.toString())),
+      DataCell(actions(output, update))
+    ]);
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => outputs.length;
+  @override
+  int get selectedRowCount => 0;
 }

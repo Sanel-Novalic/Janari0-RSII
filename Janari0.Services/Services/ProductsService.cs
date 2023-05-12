@@ -41,8 +41,10 @@ namespace Janari0.Services.Services
         {
             var filteredQuery = base.AddFilter(query, search);
 
-            filteredQuery = filteredQuery.Where(x => x.User.Uid == search.Uid);
-
+            if (!string.IsNullOrWhiteSpace(search?.Uid))
+            {
+                filteredQuery = filteredQuery.Where(x => x.User.Uid == search.Uid);
+            }
             if (!string.IsNullOrWhiteSpace(search?.Name))
             {
                 filteredQuery = filteredQuery.Where(x => x.Name == search.Name);

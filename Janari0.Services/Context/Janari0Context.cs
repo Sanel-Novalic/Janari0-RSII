@@ -7,6 +7,10 @@ namespace Janari0.Services.Context;
 
 public partial class Janari0Context : DbContext
 {
+    public Janari0Context()
+    {
+    }
+
     public Janari0Context(DbContextOptions<Janari0Context> options)
         : base(options)
     {
@@ -33,6 +37,10 @@ public partial class Janari0Context : DbContext
     public virtual DbSet<Seller> Sellers { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=Janari0;Integrated Security=SSPI;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,8 +100,8 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.ProductSale).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductSaleId)
-                .HasConstraintName("FK_OrderItems_ProductsSale")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_OrderItems_ProductsSale");
         });
 
         modelBuilder.Entity<Output>(entity =>
@@ -149,8 +157,8 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.Photos)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK_Photos_Products")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Photos_Products");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -164,7 +172,6 @@ public partial class Janari0Context : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Products_Users");
-
         });
 
         modelBuilder.Entity<ProductsSale>(entity =>
@@ -185,8 +192,8 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductsSales)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK_ProductsSale_Products")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ProductsSale_Products");
         });
 
         modelBuilder.Entity<Seller>(entity =>
@@ -216,6 +223,8 @@ public partial class Janari0Context : DbContext
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Email).HasMaxLength(20);
             entity.Property(e => e.LocationId).HasColumnName("LocationID");
+            entity.Property(e => e.PasswordHash).HasMaxLength(50);
+            entity.Property(e => e.PasswordSalt).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Uid).HasMaxLength(30);
