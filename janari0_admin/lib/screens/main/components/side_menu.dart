@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:janari0/model/user.dart';
-import 'package:janari0_admin/controllers/MenuAppController.dart';
+import 'package:janari0_admin/controllers/menu_app_controller.dart';
+import 'package:janari0_admin/screens/login.dart';
 import 'package:provider/provider.dart';
-
-import '../../show_users.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -53,7 +51,10 @@ class SideMenu extends StatelessWidget {
             alignment: FractionalOffset.bottomCenter,
             child: DrawerListTile(
               title: "Log out",
-              press: () {},
+              press: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Login()));
+              },
             ),
           ),
         ),
@@ -80,7 +81,7 @@ class DrawerListTile extends StatelessWidget {
       horizontalTitleGap: 0.0,
       title: Text(
         title,
-        style: TextStyle(color: Colors.white54),
+        style: const TextStyle(color: Colors.white54),
       ),
     );
   }

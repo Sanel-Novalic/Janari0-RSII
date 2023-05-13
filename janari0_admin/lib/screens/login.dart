@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:janari0/providers/user_provider.dart';
-import 'package:janari0_admin/screens/dashboard/dashboard_screen.dart';
 import 'package:janari0_admin/screens/main/main_screen.dart';
-import 'package:provider/provider.dart';
-
-import '../controllers/MenuAppController.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
-    String email = "";
+    String username = "";
     String password = "";
     return Scaffold(
         body: Column(
@@ -34,10 +29,10 @@ class Login extends StatelessWidget {
           child: TextField(
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: 'Email',
+              hintText: 'Username',
             ),
             onChanged: (text) {
-              email = text;
+              username = text;
             },
           ),
         ),
@@ -54,7 +49,7 @@ class Login extends StatelessWidget {
           ),
         ),
         ElevatedButton(
-          onPressed: () => loginUser(email, password, context),
+          onPressed: () => loginUser(username, password, context),
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
           child: const Text('Login'),
         ),

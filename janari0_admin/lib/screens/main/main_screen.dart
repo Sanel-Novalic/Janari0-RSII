@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:janari0/model/user.dart';
-import 'package:janari0/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/MenuAppController.dart';
+import '../../controllers/menu_app_controller.dart';
 import '../dashboard/dashboard_screen.dart';
-import '../login.dart';
+
 import 'components/side_menu.dart';
 
 class MainScreen extends StatefulWidget {
@@ -26,10 +24,10 @@ class _MainScreen extends State<MainScreen> {
     return Scaffold(
       key: context.read<MenuAppController>().scaffoldKey,
       drawer: const SideMenu(),
-      body: SafeArea(
+      body: const SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Expanded(
               child: SideMenu(),
             ),

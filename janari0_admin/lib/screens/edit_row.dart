@@ -1,13 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:janari0/model/order.dart';
 import 'package:janari0/model/output.dart';
 import 'package:janari0/model/product.dart';
 import 'package:janari0/model/product_sale.dart';
 import 'package:janari0/model/requests/user_update_request.dart';
 import 'package:janari0/model/user.dart' as u;
-import 'package:janari0/utils/custom_form_field.dart';
 import 'package:janari0_admin/screens/dashboard/dashboard_screen.dart';
 import 'package:janari0_admin/utils/custom_field.dart';
 
@@ -59,6 +56,7 @@ class _EditRow extends State<EditRow> {
         height: 60,
       ),
       ElevatedButton(
+        // Update user
         onPressed: () async {
           UserUpdateRequest userUpdateRequest = UserUpdateRequest(
               username: usernameController.text == row.username
@@ -67,9 +65,12 @@ class _EditRow extends State<EditRow> {
               phoneNumber: phoneNumberController.text == row.phoneNumber
                   ? null
                   : phoneNumberController.text);
+
           await userProvider.update(row.userId, userUpdateRequest);
+
           row.username = usernameController.text;
           row.phoneNumber = phoneNumberController.text;
+
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               backgroundColor: Colors.white,
@@ -108,24 +109,7 @@ class _EditRow extends State<EditRow> {
       const SizedBox(
         height: 70,
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: controller,
-            question: "Name",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
+      CustomField(controller: controller, question: "Name"),
       const SizedBox(
         height: 60,
       ),
@@ -170,42 +154,8 @@ class _EditRow extends State<EditRow> {
       const SizedBox(
         height: 70,
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: controller,
-            question: "Price",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: descriptionContoller,
-            question: "Description",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
+      CustomField(controller: controller, question: "Price"),
+      CustomField(controller: descriptionContoller, question: "Description"),
       const SizedBox(
         height: 60,
       ),
@@ -251,42 +201,8 @@ class _EditRow extends State<EditRow> {
       const SizedBox(
         height: 70,
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: controller,
-            question: "Status",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: canceledContoller,
-            question: "Canceled",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
+      CustomField(controller: controller, question: "Status"),
+      CustomField(controller: canceledContoller, question: "Canceled"),
       const SizedBox(
         height: 60,
       ),
@@ -334,60 +250,9 @@ class _EditRow extends State<EditRow> {
       const SizedBox(
         height: 70,
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: controller,
-            question: "Payment method",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: concludedController,
-            question: "Concluded",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomFormField().field(
-            controller: amountController,
-            question: "Amount",
-            horizontalTextPadding: 20,
-            verticalTextPadding: 10,
-            labelTextStyle:
-                const TextStyle(color: Colors.white, background: null),
-            icon: const Icon(
-              Icons.key,
-              color: Colors.grey,
-              size: 25,
-            ),
-            fieldTextFontSize: 15,
-            borderColor: Colors.white,
-            cursorColor: Colors.white),
-      ),
+      CustomField(controller: controller, question: "Payment method"),
+      CustomField(controller: concludedController, question: "Concluded"),
+      CustomField(controller: amountController, question: "Amount"),
       const SizedBox(
         height: 60,
       ),

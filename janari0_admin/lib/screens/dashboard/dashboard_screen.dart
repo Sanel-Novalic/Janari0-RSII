@@ -9,7 +9,7 @@ import 'package:janari0/providers/output_provider.dart';
 import 'package:janari0/providers/product_provider.dart';
 import 'package:janari0/providers/product_sale_provider.dart';
 import 'package:janari0/providers/user_provider.dart';
-import 'package:janari0_admin/controllers/MenuAppController.dart';
+import 'package:janari0_admin/controllers/menu_app_controller.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 import 'package:get/get.dart';
@@ -48,7 +48,9 @@ class _DashboardScreen extends State<DashboardScreen> {
   }
 
   void update() {
-    setState(() {});
+    setState(() {
+      widgets = widgets;
+    });
   }
 
   Future<List<User>> loadData() async {
@@ -57,7 +59,6 @@ class _DashboardScreen extends State<DashboardScreen> {
     productsSale = await productSaleProvider.get();
     orders = await orderProvider.get();
     outputs = await outputProvider.get();
-    print(products.length);
     return users;
   }
 
@@ -121,26 +122,24 @@ class _DashboardScreen extends State<DashboardScreen> {
   }
 
   void createWidgets() {
-    // Users
-    try {
-      widgets.add(table("Users", const Text("UserID"), const Text("Username"),
-          const Text("Email"), UsersData(update: update)));
-      widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
-          const Text("Expiration Date"), ProductsData(update: update)));
-      widgets.add(table(
-          "ProductsSale",
-          const Text("ProductSaleID"),
-          const Text("Price"),
-          const Text("Description"),
-          ProductsSaleData(update: update)));
-      widgets.add(table("Orders", const Text("OrderID"), const Text("Price"),
-          const Text("Status"), OrderData(update: update)));
-      widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
-          const Text("Concluded"), OutputData(update: update)));
-    } catch (e) {
-      print("ERr");
-      print(e.toString());
-    }
+    widgets.add(table("Users", const Text("UserID"), const Text("Username"),
+        const Text("Email"), UsersData(update: update)));
+
+    widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
+        const Text("Expiration Date"), ProductsData(update: update)));
+
+    widgets.add(table(
+        "ProductsSale",
+        const Text("ProductSaleID"),
+        const Text("Price"),
+        const Text("Description"),
+        ProductsSaleData(update: update)));
+
+    widgets.add(table("Orders", const Text("OrderID"), const Text("Price"),
+        const Text("Status"), OrderData(update: update)));
+
+    widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
+        const Text("Concluded"), OutputData(update: update)));
   }
 }
 
@@ -163,19 +162,9 @@ Widget actions(dynamic row, Function() update) {
         ),
       ),
       const Text(' | '),
-      InkWell(
-        onTap: () => {},
-        child: const Text(
-          'Details',
-          style: TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ),
       const Text(' | '),
       InkWell(
-        onTap: () => {},
+        onTap: () => {deleteRow(row, update)},
         child: const Text(
           'Delete',
           style: TextStyle(
@@ -186,6 +175,26 @@ Widget actions(dynamic row, Function() update) {
       ),
     ],
   );
+}
+
+deleteRow(row, Function() update) async {
+  if (row is User) {
+    await userProvider.delete(row.userId);
+    users.remove(row);
+  } else if (row is Product) {
+    await productProvider.delete(row.productId!);
+    products.remove(row);
+  } else if (row is ProductSale) {
+    await productSaleProvider.delete(row.productSaleId!);
+    productsSale.remove(row);
+  } else if (row is Order) {
+    await orderProvider.delete(row.orderId!);
+    orders.remove(row);
+  } else if (row is Output) {
+    await outputProvider.delete(row.outputId!);
+    outputs.remove(row);
+  }
+  update();
 }
 
 class UsersData extends DataTableSource {

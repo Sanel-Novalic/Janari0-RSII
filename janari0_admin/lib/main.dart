@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:janari0_admin/screens/login.dart';
-import 'package:janari0_admin/screens/main/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'constants.dart';
-import 'controllers/MenuAppController.dart';
+import 'controllers/menu_app_controller.dart';
 
 void main() async {
   runApp(const MyApp());
