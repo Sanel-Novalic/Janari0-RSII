@@ -5,21 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "janari0_admin",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
             "name": "janari0_admin (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args":[
+                "--dart-define", "baseUrl=https://localhost:7158/"
+            ]
         },
         {
             "name": "janari0_admin (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args":[
+                "--dart-define", "baseUrl=https://localhost:7158/"
+            ]
         },
         {
             "name": "janari0_admin_conf",

@@ -1,0 +1,36 @@
+version: '3'
+services:
+#mssql docker
+  janari0-sql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=QWElkj132!
+      - MSSQL_PID=Developer
+    ports:
+      - 1401:1433
+    expose:
+      - 1433
+    networks:
+      - janari0net2023
+
+  janari0-api:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=janari0-sql,1433;Database=Janari0;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 7158:7158
+    networks:
+      - janari0net2023
+    links:
+      - janari0-sql
+    depends_on:
+      - janari0-sql
+      
+networks:
+  janari0net2023:
+    driver: bridge  

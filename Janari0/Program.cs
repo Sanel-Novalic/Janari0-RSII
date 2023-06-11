@@ -49,5 +49,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider.GetRequiredService<Janari0Context>();
+    service.Database.Migrate();
+}
+
+
 app.Run();
 
