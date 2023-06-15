@@ -15,8 +15,9 @@ mobile2@gmail.com (user that buys the food)
 If you want to run mobile application on your phone, connect you phone to you pc and run flutter command by passing your PC ip address (ipconfig). 
 By default flutter app is configured to work with emulator and docker api services.
 
-# Emulator ip address will be 10.0.2.2
-# flutter run  
+```# Emulator ip address will be 10.0.2.2
+# flutter run
 # Or 
 # Android device 
 # flutter run --dart-define=baseUrl=<yourIpAddress>
+```
