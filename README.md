@@ -5,9 +5,12 @@ Start the Docker with the "docker-compose up --build" command. To test the API, 
 All test users have the same password: test123
 
 Test users:
-desktop: admin@gmail.com
-mobile: mobile@gmail.com (user with the food, seller)
-	mobile2@gmail.com (user that buys the food)
+
+admin@gmail.com
+
+mobile@gmail.com (user with the food, seller)
+
+mobile2@gmail.com (user that buys the food)
 
 If you want to run mobile application on your phone, connect you phone to you pc and run flutter command by passing your PC ip address (ipconfig). 
 By default flutter app is configured to work with emulator and docker api services.
