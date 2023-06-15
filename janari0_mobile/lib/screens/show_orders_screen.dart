@@ -5,7 +5,6 @@ import '../model/user.dart';
 import '../providers/order_provider.dart';
 
 class ShowOrders extends StatefulWidget {
-  static const String routeName = "/show_products";
   final String text;
   final User user;
   const ShowOrders({super.key, required this.text, required this.user});

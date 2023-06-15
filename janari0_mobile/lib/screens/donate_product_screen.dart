@@ -11,7 +11,6 @@ import '../model/user.dart';
 import '../utils/multi_line_text.dart';
 
 class DonateProductScreen extends StatefulWidget {
-  static const String routeName = "/sell_product";
   final List<Product> products;
   final bool hasPrice;
   final User user;
@@ -42,7 +41,7 @@ class _DonateProductScreen extends State<DonateProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Donate product"),
+        title: const Text("Put product on sale"),
       ),
       body: LayoutBuilder(builder: (context, constraints) {
         return Form(
@@ -196,7 +195,6 @@ class _DonateProductScreen extends State<DonateProductScreen> {
   }
 
   createProductSale() async {
-    print("ADWDAD${product!.productId}");
     if (product == null) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select a product for sale')));
@@ -206,8 +204,7 @@ class _DonateProductScreen extends State<DonateProductScreen> {
         productId: product!.productId!,
         price: priceController.text,
         description: descriptionController.text,
-        locationId: widget.user.locationId));
-    print("ADWDAD${product!.productId}");
+        locationId: widget.user.locationId!));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Successfully added product on sale')));

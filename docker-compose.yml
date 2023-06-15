@@ -4,12 +4,13 @@ services:
   janari0-sql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     restart: unless-stopped
+    user: root
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=QWElkj132!
       - MSSQL_PID=Developer
     ports:
-      - 1401:1433
+      - 1433:1433
     expose:
       - 1433
     networks:
@@ -17,10 +18,11 @@ services:
 
   janari0-api:
     restart: unless-stopped
+    user: root
     build:
       context: .
     environment:
-      - ConnectionStrings:DefaultConnection=Server=janari0-sql,1433;Database=Janari0;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
+      - ConnectionStrings:DefaultConnection=Server=janari0-sql,1433;Database=190017;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - 7158:7158

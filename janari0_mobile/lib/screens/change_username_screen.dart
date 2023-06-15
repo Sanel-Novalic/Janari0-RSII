@@ -5,7 +5,6 @@ import '../utils/custom_form_field.dart';
 import 'main_screen.dart';
 
 class ChangeUsernameScreen extends StatefulWidget {
-  static const String routeName = "/change_username";
   final u.User user;
   const ChangeUsernameScreen({super.key, required this.user});
   @override
@@ -18,7 +17,6 @@ class _ChangeUsernameScreen extends State<ChangeUsernameScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
     usernameController.text = widget.user.username;
   }
 
@@ -64,7 +62,6 @@ class _ChangeUsernameScreen extends State<ChangeUsernameScreen> {
   }
 
   updateUsername() async {
-    print(widget.user.userId);
     widget.user.username = usernameController.text;
     await userProvider.update(widget.user.userId, widget.user);
 

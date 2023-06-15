@@ -24,11 +24,6 @@ class CustomCarousel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(child: Text(text)),
-              Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                  child: InkWell(
-                      onTap: () => debugPrint("AYY"),
-                      child: const Text('See all >')))
             ],
           ),
         ),
@@ -84,7 +79,10 @@ class CustomCarousel extends StatelessWidget {
                       const SizedBox(height: 23),
                       SizedBox(
                           width: 150,
-                          child: Text(productsSale.elementAt(index).price))
+                          child: Text(
+                              productsSale.elementAt(index).price == "Free"
+                                  ? productsSale.elementAt(index).price
+                                  : "€ ${productsSale.elementAt(index).price}"))
                     ],
                   ),
                 ),

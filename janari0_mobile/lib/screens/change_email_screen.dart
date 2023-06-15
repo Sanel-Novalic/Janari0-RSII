@@ -6,7 +6,6 @@ import '../utils/custom_form_field.dart';
 import 'main_screen.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
-  static const String routeName = "/change_email";
   final u.User user;
   const ChangeEmailScreen({super.key, required this.user});
   @override
@@ -19,7 +18,6 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
     controller.text = widget.user.email;
   }
 
@@ -27,7 +25,7 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change username'),
+        title: const Text('Change email'),
       ),
       body: Column(
         children: [
@@ -65,7 +63,6 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
   }
 
   updateUser() async {
-    print(widget.user.userId);
     widget.user.email = controller.text;
     await userProvider.update(widget.user.userId, widget.user);
     FirebaseAuth.instance.currentUser!.updateEmail(widget.user.email);

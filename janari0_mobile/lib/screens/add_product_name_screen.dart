@@ -4,7 +4,6 @@ import 'package:janari0/model/user.dart' as u;
 import 'add_product_full_screen.dart';
 
 class AddProductName extends StatefulWidget {
-  static const String routeName = "/add_product_name";
   final String? name;
   final String? scannedImage;
   final u.User user;
@@ -46,6 +45,7 @@ class _AddProductName extends State<AddProductName> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
             child: TextField(
+              key: widget.key,
               controller: nameController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),

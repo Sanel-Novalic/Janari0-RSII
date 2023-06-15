@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:janari0/providers/user_provider.dart';
 import 'package:janari0/model/user.dart' as u;
+import 'package:janari0/screens/change_email_screen.dart';
+import 'package:janari0/screens/change_password_screen.dart';
+import 'package:janari0/screens/change_phone_number_screen.dart';
 import 'package:janari0/screens/change_username_screen.dart';
 import '../utils/long_white_button.dart';
 
 class EditProfile extends StatefulWidget {
-  static const String routeName = "/edit_profile";
   final u.User user;
   const EditProfile({super.key, required this.user});
   @override
@@ -24,7 +26,6 @@ class _EditProfile extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
   }
 
   navigate() {
@@ -87,24 +88,40 @@ class _EditProfile extends State<EditProfile> {
               text: "Username",
               value: widget.user.username,
               user: widget.user,
-              onPressed: () => navigate()),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ChangeUsernameScreen(user: widget.user)))),
           LongWhiteButton(
             text: "Email",
             value: widget.user.email,
             user: widget.user,
-            onPressed: () => navigate(),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ChangeEmailScreen(user: widget.user))),
           ),
           LongWhiteButton(
             text: "Phone number",
-            value: widget.user.phoneNumber,
+            value: widget.user.phoneNumber!,
             user: widget.user,
-            onPressed: () => navigate(),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ChangePhoneNumberScreen(user: widget.user))),
           ),
           LongWhiteButton(
             text: "Password",
             value: "*********",
             user: widget.user,
-            onPressed: () => navigate(),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ChangePasswordScreen(user: widget.user))),
           ),
         ],
       ),

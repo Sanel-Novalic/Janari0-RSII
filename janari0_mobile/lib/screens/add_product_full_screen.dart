@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:janari0/model/requests/photo_insert_request.dart';
 import 'package:janari0/model/requests/product_insert_request.dart';
 import '../providers/product_provider.dart';
@@ -15,7 +14,6 @@ import 'package:janari0/model/user.dart' as u;
 import 'main_screen.dart';
 
 class AddProductFull extends StatefulWidget {
-  static const String routeName = '/add_product_full';
   final String name;
   final String? image;
   final u.User user;
@@ -27,9 +25,6 @@ class AddProductFull extends StatefulWidget {
 }
 
 class _AddProductFull extends State<AddProductFull> {
-  late File? image;
-  late XFile? photo;
-  late List<File> photos = [];
   late List<PhotoInsertRequest> photosUrl = [];
   TextEditingController dateController = TextEditingController();
   final ProductProvider productProvider = ProductProvider();
@@ -39,39 +34,6 @@ class _AddProductFull extends State<AddProductFull> {
   void initState() {
     super.initState();
     initializeDateFormatting();
-  }
-
-  Future<Reference> uploadPicture(CroppedFile file, int id) async {
-    Reference imgRef =
-        FirebaseStorage.instance.ref().child("images/${user!.uid}/${id}_800");
-
-    await imgRef.putFile(File(file.path));
-
-    return imgRef;
-  }
-
-  Future<void> uploadProduct() async {
-    debugPrint(_pictures!.length.toString());
-    for (var picture in _pictures!) {
-      Reference? ref = picture.storageReference;
-      if (ref != null) {
-        photosUrl.add(PhotoInsertRequest(
-            link: await picture.storageReference?.getDownloadURL()));
-      }
-    }
-    debugPrint("PRHTOTO");
-    debugPrint(photosUrl.length.toString());
-    ProductInsertRequest product = ProductInsertRequest(
-        name: widget.name,
-        expirationDate: DateTime.parse(dateController.text),
-        photos: photosUrl,
-        userId: widget.user.userId);
-    await productProvider.insert(product);
-    photosUrl.clear();
-    debugPrint("YEs");
-    if (!mounted) return;
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
   }
 
   @override
@@ -162,6 +124,35 @@ class _AddProductFull extends State<AddProductFull> {
         ],
       ),
     );
+  }
+
+  Future<Reference> uploadPicture(CroppedFile file, int id) async {
+    Reference imgRef =
+        FirebaseStorage.instance.ref().child("images/${user!.uid}/${id}_800");
+
+    await imgRef.putFile(File(file.path));
+
+    return imgRef;
+  }
+
+  Future<void> uploadProduct() async {
+    for (var picture in _pictures!) {
+      Reference? ref = picture.storageReference;
+      if (ref != null) {
+        photosUrl.add(PhotoInsertRequest(
+            link: await picture.storageReference?.getDownloadURL()));
+      }
+    }
+    ProductInsertRequest product = ProductInsertRequest(
+        name: widget.name,
+        expirationDate: DateTime.parse(dateController.text),
+        photos: photosUrl,
+        userId: widget.user.userId);
+    await productProvider.insert(product);
+    photosUrl.clear();
+    if (!mounted) return;
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const MainScreen()));
   }
 
   void pictureCallback(

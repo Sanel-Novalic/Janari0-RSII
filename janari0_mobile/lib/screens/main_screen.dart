@@ -4,7 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:janari0/providers/location_provider.dart';
 import 'package:janari0/providers/product_provider.dart';
 import 'package:janari0/providers/product_sale_provider.dart';
-import 'package:janari0/qr_code_scanner.dart';
+import 'package:janari0/utils/qr_code_scanner.dart';
 import 'package:janari0/screens/profile_screen.dart';
 import 'package:search_page/search_page.dart';
 import '../model/product.dart';
@@ -18,7 +18,6 @@ import 'package:janari0/model/user.dart' as u;
 import 'package:location/location.dart';
 
 class MainScreen extends StatefulWidget {
-  static const String routeName = "/main";
   const MainScreen({super.key});
 
   @override
@@ -68,14 +67,12 @@ class _MainScreen extends State<MainScreen> {
         return null;
       }
     }
-
     locationData = await location.getLocation();
     LocationProvider locationProvider = LocationProvider();
     var locationUpdateRequest = LocationCURequest(
         latitude: locationData.latitude!, longitude: locationData.longitude!);
-    await locationProvider.update(user.locationId, locationUpdateRequest);
+    await locationProvider.update(user.locationId!, locationUpdateRequest);
 
-    print("ADA");
     var searchRequest = {
       'carousel': "Nearby",
       'latitude': locationData.latitude,
@@ -107,16 +104,14 @@ class _MainScreen extends State<MainScreen> {
     }
     var tmpUser = await userProvider.get(searchRequest);
     allProductsSale = await productSaleProvider.get(null);
-    print(allProductsSale.first.product?.name ?? "NULl");
     await getLocation(user);
     recommendedProductsSale =
         (await productSaleProvider.getRecommended(user.userId))!;
-    print(recommendedProductsSale.first.product!.name);
     setState(() {
       user = tmpUser.first;
       products = tmpData;
     });
-
+    if (nearbyProducts.isEmpty) nearbyProducts = List<ProductSale>.empty();
     return nearbyProducts;
   }
 
@@ -216,16 +211,9 @@ class _MainScreen extends State<MainScreen> {
                       ));
                 }),
             IconButton(
-              icon: const Icon(Icons.question_mark),
-              tooltip: 'Show tutorial',
-              onPressed: () {},
-            ),
-            IconButton(
               icon: const Icon(Icons.person),
               tooltip: 'Show profile',
               onPressed: () async {
-                //await FirebaseAuth.instance.signOut();
-                //if (!mounted) return;
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -251,7 +239,6 @@ class _MainScreen extends State<MainScreen> {
               if (!snapshot.hasData) {
                 return const CircularProgressIndicator();
               }
-              print("WHY");
               return Container(
                 decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -329,6 +316,9 @@ class _MainScreen extends State<MainScreen> {
                         productsSale: freeProducts,
                         user: user,
                       ),
+                      const SizedBox(
+                        height: 50,
+                      )
                     ],
                   ),
                 ),

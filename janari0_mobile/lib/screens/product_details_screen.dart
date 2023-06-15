@@ -13,7 +13,6 @@ import '../providers/payment_provider.dart';
 import '../providers/product_provider.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  static const String routeName = "/product_details";
   final User user;
   final ProductSale productSale;
   const ProductDetailsScreen(

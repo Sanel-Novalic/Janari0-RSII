@@ -7,13 +7,13 @@ using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
         Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen (options => { options.CustomSchemaIds(type => type.ToString()); });
+
 builder.Services.AddTransient<IProductsSaleService, ProductsSaleService>();
 builder.Services.AddTransient<IProductsService, ProductsService>();
 builder.Services.AddTransient<IUsersService, UsersService>();
@@ -34,7 +34,6 @@ builder.Services.AddDbContext<Janari0Context>(options => {
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -54,7 +53,6 @@ using (var scope = app.Services.CreateScope())
     var service = scope.ServiceProvider.GetRequiredService<Janari0Context>();
     service.Database.Migrate();
 }
-
 
 app.Run();
 

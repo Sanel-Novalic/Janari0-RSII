@@ -18,7 +18,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "https://10.0.2.2:7158/");
+        defaultValue:
+            "https://10.0.2.2:7158/"); // When testing from your phone, put your usb debugging computer's ip address instead
     debugPrint("baseurl: $_baseUrl");
 
     if (_baseUrl!.endsWith("/") == false) {
@@ -49,7 +50,6 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var uri = Uri.parse(url);
 
     Map<String, String> headers = createHeaders();
-    print(uri);
     try {
       var response = await http!.get(uri, headers: headers);
       if (isValidResponseCode(response)) {
@@ -59,8 +59,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
         throw Exception("Exception... handle this gracefully");
       }
     } catch (e) {
-      print("Error");
-      print(e.toString());
+      debugPrint("Error");
+      debugPrint(e.toString());
     }
     return List<T>.empty();
   }
@@ -129,11 +129,16 @@ abstract class BaseProvider<T> with ChangeNotifier {
         await http!.put(uri, headers: headers, body: jsonEncode(request));
 
     if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data);
+      try {
+        var data = jsonDecode(response.body);
+        return fromJson(data);
+      } catch (e) {
+        debugPrint(e.toString());
+      }
     } else {
       return null;
     }
+    return null;
   }
 
   Future<T?> delete(int id) async {
@@ -214,9 +219,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var object = {"username": username, "password": password};
     String queryString = getQueryString(object);
     url = "$url?$queryString";
-    print(url);
     var uri = Uri.parse(url);
-    print(uri);
     Map<String, String> headers = createHeaders();
     var response = await http!.get(uri, headers: headers);
 

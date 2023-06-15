@@ -16,13 +16,12 @@ class LongWhiteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("wdawdaw${user.userId}");
     return SizedBox(
       width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.only(left: 18.0, right: 18, top: 5),
         child: ElevatedButton(
-            onPressed: () => onPressed,
+            onPressed: () => onPressed(),
             style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.white,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openfoodfacts/model/ProductResultV3.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
-import 'screens/add_product_name_screen.dart';
+import '../screens/add_product_name_screen.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:janari0/model/user.dart' as u;

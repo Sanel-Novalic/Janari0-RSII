@@ -9,7 +9,6 @@ import '../model/requests/user_update_request.dart';
 import '../utils/custom_form_field.dart';
 
 class RegisterScreen extends StatefulWidget {
-  static const String routeName = "/register";
   const RegisterScreen({super.key});
 
   @override
@@ -32,12 +31,6 @@ class _RegisterScreen extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
         body: SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
@@ -150,23 +143,6 @@ class _RegisterScreen extends State<RegisterScreen> {
                   debugPrint(phoneNumber.text);
                 },
               ),
-              //child: PhoneNumberInput(
-              //  controller: _phonecontroller,
-              //  initialCountry: 'BA',
-              //  countryListMode: CountryListMode.dialog,
-              //  enabledBorder: OutlineInputBorder(
-              //      borderRadius: BorderRadius.circular(10),
-              //      borderSide: const BorderSide(color: Colors.white)),
-              //  focusedBorder: OutlineInputBorder(
-              //      borderRadius: BorderRadius.circular(10),
-              //      borderSide: const BorderSide(color: Colors.white)),
-              //  allowPickFromContacts: false,
-              //  border: OutlineInputBorder(
-              //      borderRadius: BorderRadius.circular(10),
-              //      borderSide: const BorderSide(color: Colors.white)),
-              //  errorText: 'Incorrect format',
-              //  onChanged: (phoneNumber) => print(_phonecontroller.phoneNumber),
-              //),
             ),
             ElevatedButton(
               onPressed: () => registerUser(),

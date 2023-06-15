@@ -10,7 +10,6 @@ import '../model/product.dart';
 import 'edit_profile_screen.dart';
 
 class Profile extends StatefulWidget {
-  static const String routeName = "/profile";
   final u.User user;
   final List<Product> products;
   const Profile({super.key, required this.user, required this.products});
@@ -23,7 +22,6 @@ class _Profile extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
   }
 
   @override
@@ -110,8 +108,8 @@ class _Profile extends State<Profile> {
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(7))),
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(
                         Icons.add_shopping_cart,
                         color: Colors.black,
@@ -145,8 +143,8 @@ class _Profile extends State<Profile> {
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(7))),
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(
                         Icons.local_shipping,
                         color: Colors.black,
@@ -166,52 +164,22 @@ class _Profile extends State<Profile> {
           Expanded(
             child: Align(
               alignment: FractionalOffset.bottomCenter,
-              child: SizedBox(
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 18.0, right: 18),
-                  child: ElevatedButton(
-                      onPressed: () => {},
-                      style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7))),
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.article,
-                            color: Colors.black,
-                            size: 25,
-                          ),
-                          SizedBox(
-                            width: 12,
-                          ),
-                          Text(
-                            'Ad free',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ],
-                      )),
+              child: ElevatedButton(
+                onPressed: () => {
+                  FirebaseAuth.instance.signOut(),
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MyHomePage()))
+                },
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(125, 35),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18))),
+                child: Text(
+                  'Sign out',
+                  style: GoogleFonts.roboto(),
                 ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: ElevatedButton(
-              onPressed: () => {
-                FirebaseAuth.instance.signOut(),
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const MyHomePage()))
-              },
-              style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(95, 28),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18))),
-              child: Text(
-                'Sign out',
-                style: GoogleFonts.roboto(),
               ),
             ),
           ),

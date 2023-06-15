@@ -2,12 +2,15 @@
 using Janari0.Model.SearchObjects;
 using Janari0.Services.Context;
 using Janari0.Services.Database;
+using Janari0.Services.HelperMethods;
 using Janari0.Services.IServices;
 using Janari0.Services.Requests;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
+using System.Collections.Generic;
+
 namespace Janari0.Services.Services
 {
     public class ProductsSaleService : BaseCRUDService<Model.ProductsSale, Database.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleInsertRequest>, IProductsSaleService
@@ -28,7 +31,7 @@ namespace Janari0.Services.Services
                     productSale.Location = location;
                     var distance = getDistance(search.Latitude, search.Longitude, productSale.Location.Latitude, productSale.Location.Longitude);
                     Console.WriteLine(distance);
-                    if (distance < 1000)
+                    if (distance < 5000)
                     {
                         var product = productsService.GetById(productSale.ProductId);
                         productSale.Product = product;

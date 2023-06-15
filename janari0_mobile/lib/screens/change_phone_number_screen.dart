@@ -5,7 +5,6 @@ import '../utils/custom_form_field.dart';
 import 'main_screen.dart';
 
 class ChangePhoneNumberScreen extends StatefulWidget {
-  static const String routeName = "/change_phone_number";
   final u.User user;
   const ChangePhoneNumberScreen({super.key, required this.user});
   @override
@@ -18,15 +17,14 @@ class _ChangePhoneNumberScreen extends State<ChangePhoneNumberScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
-    controller.text = widget.user.phoneNumber;
+    controller.text = widget.user.phoneNumber!;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change username'),
+        title: const Text('Change phone number'),
       ),
       body: Column(
         children: [
@@ -64,7 +62,6 @@ class _ChangePhoneNumberScreen extends State<ChangePhoneNumberScreen> {
   }
 
   updateUser() async {
-    print(widget.user.userId);
     widget.user.phoneNumber = controller.text;
     await userProvider.update(widget.user.userId, widget.user);
     if (!mounted) return;

@@ -6,7 +6,6 @@ import '../utils/custom_form_field.dart';
 import 'main_screen.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  static const String routeName = "/change_password";
   final u.User user;
   const ChangePasswordScreen({super.key, required this.user});
   @override
@@ -19,14 +18,13 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.user.userId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change username'),
+        title: const Text('Change password'),
       ),
       body: Column(
         children: [
@@ -64,8 +62,6 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
   }
 
   updateUser() async {
-    print(widget.user.userId);
-
     await FirebaseAuth.instance.currentUser!.updatePassword(controller.text);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
