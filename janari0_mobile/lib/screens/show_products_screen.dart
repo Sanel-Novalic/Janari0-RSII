@@ -23,6 +23,7 @@ class _ShowProducts extends State<ShowProducts> {
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product list'),
@@ -51,8 +52,7 @@ class _ShowProducts extends State<ShowProducts> {
               shrinkWrap: true,
               itemBuilder: (BuildContext context, int i) => Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Card(
-                    child: Row(
+                child: Row(
                   children: [
                     Image(
                       image: NetworkImage(widget.products[i].photos.isNotEmpty
@@ -62,26 +62,34 @@ class _ShowProducts extends State<ShowProducts> {
                       height: 60,
                       width: 120,
                     ),
-                    const SizedBox(
-                      width: 50,
+                    SizedBox(
+                      width: width / 15,
                     ),
-                    Column(
-                      children: [
-                        Text(widget.products[i].name!),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Text(dateFormat
-                            .format(widget.products[i].expirationDate!))
-                      ],
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            widget.products[i].name!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            dateFormat.format(widget.products[i].expirationDate!),
+                            overflow: TextOverflow.clip,
+                          )
+                        ],
+                      ),
                     ),
-                    const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () => deleteProduct(widget.products[i], i),
                     )
                   ],
-                )),
+                ),
               ),
             )
           ],
@@ -91,7 +99,11 @@ class _ShowProducts extends State<ShowProducts> {
   }
 
   deleteProduct(Product product, int index) async {
-    await productProvider.delete(product.productId!);
+    try {
+      await productProvider.delete(product.productId!);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Something went wrong while deleting.')));
+    }
     setState(() {
       widget.products.removeAt(index);
     });

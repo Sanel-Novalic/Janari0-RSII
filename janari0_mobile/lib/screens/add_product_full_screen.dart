@@ -42,83 +42,85 @@ class _AddProductFull extends State<AddProductFull> {
       appBar: AppBar(
         title: Text(widget.name),
       ),
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 50,
-          ),
-          const SizedBox(
-              width: double.infinity,
-              child: Text(
-                'Add photos from your gallery or take a picture with your camera',
-                textAlign: TextAlign.center,
-              )),
-          const SizedBox(
-            height: 20,
-          ),
-          PictureUploadWidget(
-            storageInstance: FirebaseStorage.instance,
-            initialImages: _pictures,
-            onPicturesChange: pictureCallback,
-            buttonStyle: PictureUploadButtonStyle(),
-            buttonText: 'Upload Picture',
-            localization: PictureUploadLocalization(),
-            settings: PictureUploadSettings(
-                customUploadFunction: uploadPicture,
-                imageSource: ImageSourceExtended.askUser,
-                minImageCount: 0,
-                maxImageCount: 5,
-                imageManipulationSettings: const ImageManipulationSettings(enableCropping: false, compressQuality: 25)),
-            enabled: true,
-          ),
-          const SizedBox(
-            height: 60,
-          ),
-          const SizedBox(
-              width: double.infinity,
-              child: Text(
-                'Enter expiration date:',
-                textAlign: TextAlign.center,
-              )),
-          const SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15, right: 10),
-            child: TextField(
-              controller: dateController, //editing controller of this TextField
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.calendar_today), //icon of text field
-                  labelText: "Enter Date" //label text of field
-                  ),
-              readOnly: true, // when true user cannot edit text
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    //DateTime.now() - not to allow to choose before today.
-                    lastDate: DateTime(2100));
-
-                if (pickedDate != null) {
-                  //pickedDate output format => 2021-03-10 00:00:00.000
-                  String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate); //formatted date output using intl package =>  2021-03-16
-                  setState(() {
-                    dateController.text = formattedDate; //set output date to TextField value.
-                  });
-                } else {}
-              },
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 50,
             ),
-          ),
-          const SizedBox(
-            height: 100,
-          ),
-          ElevatedButton(
-            onPressed: isUploading ? null : () => uploadProduct(),
-            style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
-            child: const Text('Add product'),
-          )
-        ],
+            const SizedBox(
+                width: double.infinity,
+                child: Text(
+                  'Add photos from your gallery or take a picture with your camera',
+                  textAlign: TextAlign.center,
+                )),
+            const SizedBox(
+              height: 20,
+            ),
+            PictureUploadWidget(
+              storageInstance: FirebaseStorage.instance,
+              initialImages: _pictures,
+              onPicturesChange: pictureCallback,
+              buttonStyle: PictureUploadButtonStyle(),
+              buttonText: 'Upload Picture',
+              localization: PictureUploadLocalization(),
+              settings: PictureUploadSettings(
+                  customUploadFunction: uploadPicture,
+                  imageSource: ImageSourceExtended.askUser,
+                  minImageCount: 0,
+                  maxImageCount: 5,
+                  imageManipulationSettings: const ImageManipulationSettings(enableCropping: false, compressQuality: 25)),
+              enabled: true,
+            ),
+            const SizedBox(
+              height: 60,
+            ),
+            const SizedBox(
+                width: double.infinity,
+                child: Text(
+                  'Enter expiration date:',
+                  textAlign: TextAlign.center,
+                )),
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 10),
+              child: TextField(
+                controller: dateController, //editing controller of this TextField
+                decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_today), //icon of text field
+                    labelText: "Enter Date" //label text of field
+                    ),
+                readOnly: true, // when true user cannot edit text
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      //DateTime.now() - not to allow to choose before today.
+                      lastDate: DateTime(2100));
+
+                  if (pickedDate != null) {
+                    //pickedDate output format => 2021-03-10 00:00:00.000
+                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate); //formatted date output using intl package =>  2021-03-16
+                    setState(() {
+                      dateController.text = formattedDate; //set output date to TextField value.
+                    });
+                  } else {}
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 100,
+            ),
+            ElevatedButton(
+              onPressed: isUploading ? null : () => uploadProduct(),
+              style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+              child: const Text('Add product'),
+            )
+          ],
+        ),
       ),
     );
   }

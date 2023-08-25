@@ -136,6 +136,15 @@ class _RegisterScreen extends State<RegisterScreen> {
                       ),
                     ),
                     initialCountryCode: 'BA',
+                    validator: (p0) {
+                      if (p0!.number.length == 8 || p0.number.length == 9) {
+                        valid = true;
+                        return null;
+                      }
+                      valid = false;
+                      return 'Invalid phone number';
+                    },
+                    disableLengthCheck: true,
                     onChanged: (phone) {
                       phoneNumber.text = phone.completeNumber;
                       debugPrint(phoneNumber.text);
@@ -143,7 +152,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () => registerUser(),
+                  onPressed: valid == false ? null : () => registerUser(),
                   style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
                   child: const Text('Register'),
                 ),
@@ -156,7 +165,6 @@ class _RegisterScreen extends State<RegisterScreen> {
   registerUser() async {
     int id = 1;
     try {
-      await userProvider.get().then((value) => id = value.last.userId);
       LocationCURequest locationInsertRequest = LocationCURequest(latitude: 0, longitude: 0);
       UserInsertRequest user = UserInsertRequest(email: email.text, username: username.text, phoneNumber: phoneNumber.text, location: locationInsertRequest);
       var returnedUser = await userProvider.insert(user);
@@ -165,23 +173,26 @@ class _RegisterScreen extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('One or more fields are invalid')));
         return;
       }
+      id = returnedUser.userId;
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.text,
         password: password.text,
       );
       var userUpdateRequest = UserUpdateRequest(uid: FirebaseAuth.instance.currentUser!.uid);
-      await userProvider.update(id + 1, userUpdateRequest);
+      await userProvider.update(id, userUpdateRequest);
       if (!mounted) return;
       Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        userProvider.delete(id + 1);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('The password provided is too weak.')));
       } else if (e.code == 'email-already-in-use') {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('The account already exists for that email.')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
       }
+      userProvider.delete(id);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('One or more inputs are invalid')));
     }
   }
 }

@@ -7,8 +7,7 @@ class AddProductName extends StatefulWidget {
   final String? name;
   final String? scannedImage;
   final u.User user;
-  const AddProductName(
-      {super.key, this.name, this.scannedImage, required this.user});
+  const AddProductName({super.key, this.name, this.scannedImage, required this.user});
   @override
   State<StatefulWidget> createState() => _AddProductName();
 }
@@ -49,7 +48,7 @@ class _AddProductName extends State<AddProductName> {
               controller: nameController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Enter a search term',
+                hintText: 'Enter a name',
               ),
             ),
           ),
