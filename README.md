@@ -12,13 +12,13 @@ mobile@gmail.com (user with the food, seller)
 
 mobile2@gmail.com (user that buys the food)
 
-If you want to run mobile application on your phone, connect you phone to you pc and run flutter command by passing your PC ip address (ipconfig). 
-By default flutter app is configured to work with emulator and docker api services.
 
-```
-# Android device 
-change define=baseurl in launch.json to your computer's ip address
+# Setup Android device 
+
+If you want to run mobile application on your phone, connect you phone to you pc and run flutter command by passing your PC ip address (ipconfig). 
+Change define=baseurl in launch.json to your computer's ip address
 for example:
+```
 "configurations": [
         {
             "name": "janari0_mobile_conf",
@@ -28,4 +28,13 @@ for example:
                 "--dart-define", "baseUrl=https://192.168.50.152:7158/"
             ]
         },
+```
+By default flutter app is configured to work with emulator and docker api services.
+
+
+
+# Setup API and database
+navigate to where docker-compose.yml is located and run command:
+```
+docker compose up --build
 ```
