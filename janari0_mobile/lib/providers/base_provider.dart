@@ -18,8 +18,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue:
-            "https://10.0.2.2:7158/"); // When testing from your phone, put your usb debugging computer's ip address instead
+        defaultValue: "https://10.0.2.2:7158/"); // When testing from your phone, put your usb debugging computer's ip address instead
     debugPrint("baseurl: $_baseUrl");
 
     if (_baseUrl!.endsWith("/") == false) {
@@ -32,10 +31,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   Map<String, String> createHeaders() {
-    var headers = {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*"
-    };
+    var headers = {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"};
     return headers;
   }
 
@@ -51,7 +47,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     Map<String, String> headers = createHeaders();
     try {
-      var response = await http!.get(uri, headers: headers);
+      var response = await http!.get(uri, headers: headers).timeout(const Duration(seconds: 6));
       if (isValidResponseCode(response)) {
         var data = jsonDecode(response.body);
         return data.map((x) => fromJson(x)).cast<T>().toList();
@@ -109,13 +105,17 @@ abstract class BaseProvider<T> with ChangeNotifier {
     Map<String, String> headers = createHeaders();
     var jsonRequest = jsonEncode(request);
     debugPrint(jsonRequest);
-    var response = await http!.post(uri, headers: headers, body: jsonRequest);
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data);
-    } else {
-      return null;
+    try {
+      var response = await http!.post(uri, headers: headers, body: jsonRequest).timeout(const Duration(seconds: 4));
+      if (isValidResponseCode(response)) {
+        if (response.body == '') return null;
+        var data = jsonDecode(response.body);
+        return fromJson(data);
+      } else {
+        return null;
+      }
+    } on TimeoutException {
+      throw Exception("Something is invalid");
     }
   }
 
@@ -124,9 +124,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var uri = Uri.parse(url);
 
     Map<String, String> headers = createHeaders();
-
-    var response =
-        await http!.put(uri, headers: headers, body: jsonEncode(request));
+    var response = await http!.put(uri, headers: headers, body: jsonEncode(request));
 
     if (isValidResponseCode(response)) {
       try {
@@ -161,8 +159,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     throw Exception("Override method");
   }
 
-  String getQueryString(Map params,
-      {String prefix = '&', bool inRecursion = false}) {
+  String getQueryString(Map params, {String prefix = '&', bool inRecursion = false}) {
     String query = '';
     params.forEach((key, value) {
       if (inRecursion) {
@@ -185,8 +182,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
       } else if (value is List || value is Map) {
         if (value is List) value = value.asMap();
         value.forEach((k, v) {
-          query +=
-              getQueryString({k: v}, prefix: '$prefix$key', inRecursion: true);
+          query += getQueryString({k: v}, prefix: '$prefix$key', inRecursion: true);
         });
       }
     });
@@ -213,7 +209,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
-  Future login(String username, String password) async {
+  Future<T?> login(String username, String password) async {
     var url = "$_baseUrl$_endpoint/Login";
 
     var object = {"username": username, "password": password};
@@ -224,9 +220,11 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var response = await http!.get(uri, headers: headers);
 
     if (isValidResponseCode(response)) {
-      return;
+      if (response.body == '') throw ("User login invalid or does not have permission to access");
+      var data = jsonDecode(response.body);
+      return fromJson(data);
     } else {
-      throw Exception("Exception... handle this gracefully");
+      throw ("Something went wrong...");
     }
   }
 

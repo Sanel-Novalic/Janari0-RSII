@@ -17,8 +17,7 @@ class AddProductFull extends StatefulWidget {
   final String name;
   final String? image;
   final u.User user;
-  const AddProductFull(
-      {super.key, required this.name, this.image, required this.user});
+  const AddProductFull({super.key, required this.name, this.image, required this.user});
 
   @override
   State<StatefulWidget> createState() => _AddProductFull();
@@ -30,6 +29,7 @@ class _AddProductFull extends State<AddProductFull> {
   final ProductProvider productProvider = ProductProvider();
   final User? user = FirebaseAuth.instance.currentUser;
   List<UploadJob>? _pictures = [];
+  bool isUploading = false;
   @override
   void initState() {
     super.initState();
@@ -68,8 +68,7 @@ class _AddProductFull extends State<AddProductFull> {
                 imageSource: ImageSourceExtended.askUser,
                 minImageCount: 0,
                 maxImageCount: 5,
-                imageManipulationSettings: const ImageManipulationSettings(
-                    enableCropping: false, compressQuality: 75)),
+                imageManipulationSettings: const ImageManipulationSettings(enableCropping: false, compressQuality: 25)),
             enabled: true,
           ),
           const SizedBox(
@@ -103,11 +102,9 @@ class _AddProductFull extends State<AddProductFull> {
 
                 if (pickedDate != null) {
                   //pickedDate output format => 2021-03-10 00:00:00.000
-                  String formattedDate = DateFormat('yyyy-MM-dd').format(
-                      pickedDate); //formatted date output using intl package =>  2021-03-16
+                  String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate); //formatted date output using intl package =>  2021-03-16
                   setState(() {
-                    dateController.text =
-                        formattedDate; //set output date to TextField value.
+                    dateController.text = formattedDate; //set output date to TextField value.
                   });
                 } else {}
               },
@@ -117,7 +114,7 @@ class _AddProductFull extends State<AddProductFull> {
             height: 100,
           ),
           ElevatedButton(
-            onPressed: () => uploadProduct(),
+            onPressed: isUploading ? null : () => uploadProduct(),
             style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
             child: const Text('Add product'),
           )
@@ -127,36 +124,43 @@ class _AddProductFull extends State<AddProductFull> {
   }
 
   Future<Reference> uploadPicture(CroppedFile file, int id) async {
-    Reference imgRef =
-        FirebaseStorage.instance.ref().child("images/${user!.uid}/${id}_800");
-
+    Reference imgRef = FirebaseStorage.instance.ref().child("images/${user!.uid}/${id}_800");
+    setState(() {
+      isUploading = true;
+    });
     await imgRef.putFile(File(file.path));
-
+    setState(() {
+      isUploading = false;
+    });
     return imgRef;
   }
 
   Future<void> uploadProduct() async {
-    for (var picture in _pictures!) {
-      Reference? ref = picture.storageReference;
-      if (ref != null) {
-        photosUrl.add(PhotoInsertRequest(
-            link: await picture.storageReference?.getDownloadURL()));
+    try {
+      for (var picture in _pictures!) {
+        Reference? ref = picture.storageReference;
+        if (ref != null) {
+          photosUrl.add(PhotoInsertRequest(link: await picture.storageReference?.getDownloadURL()));
+        }
       }
+    } on FirebaseException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+      return;
     }
-    ProductInsertRequest product = ProductInsertRequest(
-        name: widget.name,
-        expirationDate: DateTime.parse(dateController.text),
-        photos: photosUrl,
-        userId: widget.user.userId);
-    await productProvider.insert(product);
-    photosUrl.clear();
+    ProductInsertRequest product =
+        ProductInsertRequest(name: widget.name, expirationDate: DateTime.parse(dateController.text), photos: photosUrl, userId: widget.user.userId);
+    var returnedProduct = await productProvider.insert(product);
     if (!mounted) return;
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    if (returnedProduct == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Something went wrong while inserting the product')));
+      return;
+    }
+    photosUrl.clear();
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully added the product')));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
   }
 
-  void pictureCallback(
-      {List<UploadJob>? uploadJobs, bool? pictureUploadProcessing}) {
+  void pictureCallback({List<UploadJob>? uploadJobs, bool? pictureUploadProcessing}) {
     _pictures = uploadJobs;
   }
 }

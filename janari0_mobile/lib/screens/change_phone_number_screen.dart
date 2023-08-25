@@ -38,8 +38,7 @@ class _ChangePhoneNumberScreen extends State<ChangePhoneNumberScreen> {
                 question: "Phone number",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle:
-                    const TextStyle(color: Colors.black, background: null),
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -63,11 +62,13 @@ class _ChangePhoneNumberScreen extends State<ChangePhoneNumberScreen> {
 
   updateUser() async {
     widget.user.phoneNumber = controller.text;
-    await userProvider.update(widget.user.userId, widget.user);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Successfully updated the phone number')));
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    try {
+      await userProvider.update(widget.user.userId, widget.user);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the phone number')));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 }

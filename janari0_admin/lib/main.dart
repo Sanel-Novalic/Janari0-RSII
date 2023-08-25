@@ -20,8 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Admin Panel',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: bgColor,
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-            .apply(bodyColor: Colors.white),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme).apply(bodyColor: Colors.white),
         canvasColor: secondaryColor,
       ),
       home: MultiProvider(
@@ -34,9 +33,7 @@ class MyApp extends StatelessWidget {
               home: const Login(),
               theme: ThemeData.dark().copyWith(
                 scaffoldBackgroundColor: bgColor,
-                textTheme:
-                    GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-                        .apply(bodyColor: Colors.white),
+                textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme).apply(bodyColor: Colors.white),
                 canvasColor: secondaryColor,
               ))),
     );

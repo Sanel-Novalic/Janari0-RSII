@@ -94,6 +94,16 @@ namespace Janari0.Services.Services
             }
             return list;
         }
+        public override void BeforeDelete(Database.ProductsSale dbentity)
+        {
+            BuyersService buyersService = new(Context, Mapper);
+            ProductsSaleService productsSaleService = new(Context, Mapper);
+
+            foreach (var item in dbentity.Buyers)
+            {
+                buyersService.Delete(item.BuyerId);
+            }
+        }
         static MLContext mlContext = null;
         static ITransformer model = null;
 
@@ -101,7 +111,16 @@ namespace Janari0.Services.Services
         {
 
             var allItems = Context.ProductsSales.AsQueryable();
-            var trainedModel = ModelTrainer(id);
+
+            ITransformer trainedModel;
+            try
+            {
+                trainedModel = ModelTrainer(id);
+            } 
+            catch(Exception e)
+            {
+                return Get().ToList();
+            }
 
             var predictionResult = new List<Tuple<Database.ProductsSale, float>>();
             foreach (var item in allItems)
@@ -120,12 +139,14 @@ namespace Janari0.Services.Services
             var finalResult = predictionResult.OrderByDescending(o => o.Item2).Select(s => s.Item1).Take(3).ToList();
 
             ProductsService productService = new(Context, Mapper);
-            foreach (var item in finalResult)
+            if (finalResult != null)
             {
-                var product = productService.GetById(item.ProductId);
-                item.Product = Mapper.Map<Product>(product);
+                foreach (var item in finalResult)
+                {
+                    var product = productService.GetById(item.ProductId);
+                    item.Product = Mapper.Map<Product>(product);
+                }
             }
-
             return Mapper.Map<List<Model.ProductsSale>>(finalResult);
         }
 

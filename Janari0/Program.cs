@@ -2,10 +2,10 @@ using Janari0.Services.Context;
 using Janari0.Services.IServices;
 using Janari0.Services.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Stripe;
+using Microsoft.ML;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
         Newtonsoft.Json.ReferenceLoopHandling.Ignore);

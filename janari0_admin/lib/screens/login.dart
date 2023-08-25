@@ -57,11 +57,18 @@ class Login extends StatelessWidget {
     ));
   }
 
-  Future loginUser(
-      String username, String password, BuildContext context) async {
+  Future loginUser(String username, String password, BuildContext context) async {
     UserProvider userProvider = UserProvider();
-    await userProvider.login(username, password);
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    try {
+      await userProvider.login(username, password);
+      if (context.mounted) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+      ));
+      return;
+    }
   }
 }

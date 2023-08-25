@@ -39,8 +39,7 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
                 question: "Email",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle:
-                    const TextStyle(color: Colors.black, background: null),
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -64,12 +63,21 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
 
   updateUser() async {
     widget.user.email = controller.text;
-    await userProvider.update(widget.user.userId, widget.user);
-    FirebaseAuth.instance.currentUser!.updateEmail(widget.user.email);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Successfully updated the email')));
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    try {
+      await FirebaseAuth.instance.currentUser!.updateEmail(widget.user.email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the email')));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+      return;
+    }
+
+    try {
+      await userProvider.update(widget.user.userId, widget.user);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 }

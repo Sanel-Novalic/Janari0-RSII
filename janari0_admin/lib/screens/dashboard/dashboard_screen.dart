@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:janari0/model/order.dart';
 import 'package:janari0/model/output.dart';
@@ -17,7 +19,6 @@ import 'package:get/get.dart';
 import '../edit_row.dart';
 
 class DashboardScreen extends StatefulWidget {
-  static const String routeName = "/main";
   const DashboardScreen({super.key});
 
   @override
@@ -37,52 +38,49 @@ List<Output> outputs = [];
 
 class _DashboardScreen extends State<DashboardScreen> {
   List<Widget> widgets = [];
-  late Future<List<User>> myFuture;
+  final StreamController<List<User>> _dataController = StreamController<List<User>>();
+  Stream<List<User>> get dataStream => _dataController.stream;
   @override
   void initState() {
     super.initState();
-    myFuture = loadData().then((value) {
-      createWidgets();
-      return value;
-    });
+    _dataController.addStream(loadData());
   }
 
-  void update() {
-    setState(() {
-      widgets = widgets;
-    });
-  }
-
-  Future<List<User>> loadData() async {
+  Stream<List<User>> loadData() async* {
     users = await userProvider.get();
     products = await productProvider.get();
     productsSale = await productSaleProvider.get();
     orders = await orderProvider.get();
     outputs = await outputProvider.get();
-    return users;
+    createWidgets();
+    yield users;
   }
 
   @override
   Widget build(BuildContext context) {
     var drawer = Provider.of<MenuAppController>(context, listen: true);
-    return FutureBuilder(
-      future: myFuture,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
-        return Column(
-          children: [
-            const SizedBox(height: defaultPadding),
-            if (widgets.isNotEmpty) widgets[drawer.getCurrentDrawer],
-          ],
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: StreamBuilder(
+        stream: dataStream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+          return Scaffold(
+            body: Column(
+              children: [
+                const SizedBox(height: defaultPadding),
+                if (widgets.isNotEmpty) widgets[drawer.getCurrentDrawer],
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget table(String headline, Text col1, Text col2, Text col3,
-      DataTableSource source) {
+  Widget table(String headline, Text col1, Text col2, Text col3, DataTableSource source) {
     return Container(
       padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
@@ -121,29 +119,33 @@ class _DashboardScreen extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _refreshData() async {
+    _dataController.addStream(loadData());
+  }
+
+  void update({String? message}) {
+    if (message != '' && message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+    _refreshData();
+  }
+
   void createWidgets() {
-    widgets.add(table("Users", const Text("UserID"), const Text("Username"),
-        const Text("Email"), UsersData(update: update)));
+    widgets = []; // Clear existing widgets
 
-    widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
-        const Text("Expiration Date"), ProductsData(update: update)));
+    widgets.add(table("Users", const Text("UserID"), const Text("Username"), const Text("Email"), UsersData(update: update)));
 
-    widgets.add(table(
-        "ProductsSale",
-        const Text("ProductSaleID"),
-        const Text("Price"),
-        const Text("Description"),
-        ProductsSaleData(update: update)));
+    widgets.add(table("Products", const Text("ProductID"), const Text("Name"), const Text("Expiration Date"), ProductsData(update: update)));
 
-    widgets.add(table("Orders", const Text("OrderID"), const Text("Price"),
-        const Text("Status"), OrderData(update: update)));
+    widgets.add(table("ProductsSale", const Text("ProductSaleID"), const Text("Price"), const Text("Description"), ProductsSaleData(update: update)));
 
-    widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
-        const Text("Concluded"), OutputData(update: update)));
+    widgets.add(table("Orders", const Text("OrderID"), const Text("Price"), const Text("Status"), OrderData(update: update)));
+
+    widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"), const Text("Concluded"), OutputData(update: update)));
   }
 }
 
-Widget actions(dynamic row, Function() update) {
+Widget actions(dynamic row, Function({String? message}) update) {
   return Row(
     children: [
       InkWell(
@@ -151,7 +153,7 @@ Widget actions(dynamic row, Function() update) {
           Get.to(() => EditRow(
                     row: row,
                   ))!
-              .then((value) => {update()})
+              .then((value) => {update(message: value)})
         },
         child: const Text(
           'Edit',
@@ -161,7 +163,6 @@ Widget actions(dynamic row, Function() update) {
           ),
         ),
       ),
-      const Text(' | '),
       const Text(' | '),
       InkWell(
         onTap: () => {deleteRow(row, update)},
@@ -177,39 +178,40 @@ Widget actions(dynamic row, Function() update) {
   );
 }
 
-deleteRow(row, Function() update) async {
-  if (row is User) {
-    await userProvider.delete(row.userId);
-    users.remove(row);
-  } else if (row is Product) {
-    await productProvider.delete(row.productId!);
-    products.remove(row);
-  } else if (row is ProductSale) {
-    await productSaleProvider.delete(row.productSaleId!);
-    productsSale.remove(row);
-  } else if (row is Order) {
-    await orderProvider.delete(row.orderId!);
-    orders.remove(row);
-  } else if (row is Output) {
-    await outputProvider.delete(row.outputId!);
-    outputs.remove(row);
+deleteRow(row, Function({String message}) update) async {
+  try {
+    if (row is User) {
+      await userProvider.delete(row.userId);
+      users.remove(row);
+    } else if (row is Product) {
+      await productProvider.delete(row.productId!);
+      products.remove(row);
+    } else if (row is ProductSale) {
+      await productSaleProvider.delete(row.productSaleId!);
+      productsSale.remove(row);
+    } else if (row is Order) {
+      await orderProvider.delete(row.orderId!);
+      orders.remove(row);
+    } else if (row is Output) {
+      await outputProvider.delete(row.outputId!);
+      outputs.remove(row);
+    }
+    update(message: 'Successfully deleted the row');
+  } catch (e) {
+    update(message: 'Something went wrong while deleting row');
   }
-  update();
 }
 
 class UsersData extends DataTableSource {
-  final VoidCallback update;
+  final Function({String? message}) update;
 
   UsersData({required this.update});
   @override
   DataRow? getRow(int index) {
     final user = users[index];
-    return DataRow.byIndex(index: index, cells: [
-      DataCell(Text(user.userId.toString())),
-      DataCell(Text(user.username)),
-      DataCell(Text(user.email)),
-      DataCell(actions(user, update))
-    ]);
+    return DataRow.byIndex(
+        index: index,
+        cells: [DataCell(Text(user.userId.toString())), DataCell(Text(user.username)), DataCell(Text(user.email)), DataCell(actions(user, update))]);
   }
 
   @override
@@ -221,7 +223,7 @@ class UsersData extends DataTableSource {
 }
 
 class ProductsData extends DataTableSource {
-  final Function() update;
+  final Function({String? message}) update;
 
   ProductsData({required this.update});
   @override
@@ -244,7 +246,7 @@ class ProductsData extends DataTableSource {
 }
 
 class ProductsSaleData extends DataTableSource {
-  final Function() update;
+  final Function({String? message}) update;
 
   ProductsSaleData({required this.update});
   @override
@@ -267,7 +269,7 @@ class ProductsSaleData extends DataTableSource {
 }
 
 class OrderData extends DataTableSource {
-  final Function() update;
+  final Function({String? message}) update;
 
   OrderData({required this.update});
   @override
@@ -290,7 +292,7 @@ class OrderData extends DataTableSource {
 }
 
 class OutputData extends DataTableSource {
-  final Function() update;
+  final Function({String? message}) update;
 
   OutputData({required this.update});
   @override

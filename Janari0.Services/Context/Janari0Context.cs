@@ -7,6 +7,10 @@ namespace Janari0.Services.Context;
 
 public partial class Janari0Context : DbContext
 {
+    public Janari0Context()
+    {
+    }
+
     public Janari0Context(DbContextOptions<Janari0Context> options)
         : base(options)
     {
@@ -48,6 +52,7 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.ProductSale).WithMany(p => p.Buyers)
                 .HasForeignKey(d => d.ProductSaleId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Buyer_ProductsSale");
 
             entity.HasOne(d => d.User).WithMany(p => p.Buyers)
@@ -75,6 +80,7 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Buyer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.BuyerId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Orders_Buyer");
         });
 
@@ -92,7 +98,6 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.ProductSale).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductSaleId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_OrderItems_ProductsSale");
         });
 
@@ -129,6 +134,7 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Output).WithMany(p => p.OutputItems)
                 .HasForeignKey(d => d.OutputId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_OutputItems_Output");
 
             entity.HasOne(d => d.ProductSale).WithMany(p => p.OutputItems)
@@ -162,7 +168,6 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Products)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Products_Users");
         });
 
@@ -184,7 +189,6 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductsSales)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ProductsSale_Products");
         });
 
@@ -213,7 +217,7 @@ public partial class Janari0Context : DbContext
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC2EA99370");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.Email).HasMaxLength(20);
+            entity.Property(e => e.Email).HasMaxLength(30);
             entity.Property(e => e.LocationId).HasColumnName("LocationID");
             entity.Property(e => e.PasswordHash).HasMaxLength(50);
             entity.Property(e => e.PasswordSalt).HasMaxLength(50);
@@ -224,6 +228,7 @@ public partial class Janari0Context : DbContext
 
             entity.HasOne(d => d.Location).WithMany(p => p.Users)
                 .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Users_Locations");
         });
 

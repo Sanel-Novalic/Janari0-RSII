@@ -13,7 +13,7 @@ namespace Janari0.Controllers
             UsersService = service;
         }
         [HttpGet("Login")]
-        public Model.User Login(string username, string password)
+        public Model.User? Login(string username, string password)
         {
             return UsersService.Login(username, password);
         }

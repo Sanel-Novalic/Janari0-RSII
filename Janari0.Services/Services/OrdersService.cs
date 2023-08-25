@@ -124,35 +124,5 @@ namespace Janari0.Services.Services
 
             return result;
         }
-        //public override Model.Order Update(int id, OrderUpdateRequest update)
-        //{
-        //    var order = base.GetById(id);
-        //    OrderItemsService orderItemsService = new OrderItemsService(Context, Mapper);
-        //
-        //    if (order != null)
-        //    {
-        //        var orderItems = Context.OrderItems.Where(w => w.OrderId == order.OrderId).ToList();
-        //
-        //        if (orderItems.FirstOrDefault() != null && update.Items != null)
-        //        {
-        //            foreach (var orderItem in orderItems)
-        //            {
-        //                foreach (var item in update.Items)
-        //                {
-        //                    if (orderItem.ProductId == item.ProductId)
-        //                    {
-        //                        OrderItemUpdateRequest dbitem = new OrderItemUpdateRequest();
-        //                        dbitem.ProductId = item.ProductId;
-        //                        orderItemsService.Update(orderItem.OrderItemId, dbitem);
-        //                    }
-        //                }
-        //
-        //            }
-        //        }
-        //        order = base.Update(order.OrderId, update);
-        //    }
-        //    return order;
-        //}
-
     }
 }

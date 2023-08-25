@@ -11,7 +11,7 @@ public partial class ProductsSale
 
     public string? Price { get; set; }
 
-    public int LocationId { get; set; }
+    public int? LocationId { get; set; }
 
     public int ProductId { get; set; }
 
@@ -23,7 +23,7 @@ public partial class ProductsSale
 
     public virtual ICollection<OutputItem> OutputItems { get; } = new List<OutputItem>();
 
-    public virtual Product? Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 
     public virtual ICollection<Seller> Sellers { get; } = new List<Seller>();
 }

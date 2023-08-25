@@ -63,7 +63,6 @@ namespace Janari0.Services.Services
                 throw new PaymentException(" Transaction Status: " + result.Transaction.Status + "\n" +
                                        " Code: " + result.Transaction.ProcessorResponseCode + "\n" +
                                        " Text: " + result.Transaction.ProcessorResponseText);
-
             }
             else
             {
@@ -107,7 +106,6 @@ namespace Janari0.Services.Services
                         ProductId = item.ProductSaleId,
                         Price = Convert.ToDecimal(item.ProductSale.Price),
                         Discount = loyaltyPoints,
-                        //SellerId = item.ProductSale.SellerId,
                     };
                     outputItemsService.Insert(outputitem);
 

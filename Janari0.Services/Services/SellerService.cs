@@ -17,11 +17,8 @@ namespace Janari0.Services.Services
 {
     public class SellerService : BaseCRUDService<Model.Seller, Database.Seller, SellerSearchObject, SellerInsertRequest, SellerUpdateRequest>, ISellersService
     {
-        //public ProductBaseState BaseState { get; set; }
-
         public SellerService(Janari0Context context, IMapper mapper) : base(context, mapper)
         {
- //           BaseState = baseState;
         }
     }
 }

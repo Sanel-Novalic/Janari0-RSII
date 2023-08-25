@@ -70,7 +70,7 @@ namespace Janari0.Services.Migrations
                     b.HasKey("LocationId")
                         .HasName("PK__Location__E7FEA477CE391E6B");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Order", b =>
@@ -107,7 +107,7 @@ namespace Janari0.Services.Migrations
 
                     b.HasIndex("BuyerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.OrderItem", b =>
@@ -130,11 +130,7 @@ namespace Janari0.Services.Migrations
                     b.HasKey("OrderItemId")
                         .HasName("PK__OrderIte__57ED06A1F935D222");
 
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductSaleId");
-
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Output", b =>
@@ -174,10 +170,6 @@ namespace Janari0.Services.Migrations
                     b.HasKey("OutputId")
                         .HasName("PK__Output__CE760946B23FB18C");
 
-                    b.HasIndex("BuyerId");
-
-                    b.HasIndex("OrderId");
-
                     b.ToTable("Output", (string)null);
                 });
 
@@ -210,11 +202,9 @@ namespace Janari0.Services.Migrations
 
                     b.HasIndex("OutputId");
 
-                    b.HasIndex("ProductSaleId");
-
                     b.HasIndex("SellerId");
 
-                    b.ToTable("OutputItems");
+                    b.ToTable("OutputItems", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Photo", b =>
@@ -238,7 +228,7 @@ namespace Janari0.Services.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Photos");
+                    b.ToTable("Photos", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Product", b =>
@@ -266,7 +256,7 @@ namespace Janari0.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.ProductsSale", b =>
@@ -282,7 +272,7 @@ namespace Janari0.Services.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("LocationId")
+                    b.Property<int?>("LocationId")
                         .HasColumnType("int")
                         .HasColumnName("LocationID");
 
@@ -331,10 +321,6 @@ namespace Janari0.Services.Migrations
                     b.HasKey("SellerId")
                         .HasName("PK__Seller__7FE3DBA17838C381");
 
-                    b.HasIndex("ProductSaleId");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("Seller", (string)null);
                 });
 
@@ -349,8 +335,8 @@ namespace Janari0.Services.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int?>("LocationId")
                         .HasColumnType("int")
@@ -386,7 +372,7 @@ namespace Janari0.Services.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Buyer", b =>
@@ -394,6 +380,7 @@ namespace Janari0.Services.Migrations
                     b.HasOne("Janari0.Services.Database.ProductsSale", "ProductSale")
                         .WithMany("Buyers")
                         .HasForeignKey("ProductSaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Buyer_ProductsSale");
 
                     b.HasOne("Janari0.Services.Database.User", "User")
@@ -411,44 +398,10 @@ namespace Janari0.Services.Migrations
                     b.HasOne("Janari0.Services.Database.Buyer", "Buyer")
                         .WithMany("Orders")
                         .HasForeignKey("BuyerId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Orders_Buyer");
 
                     b.Navigation("Buyer");
-                });
-
-            modelBuilder.Entity("Janari0.Services.Database.OrderItem", b =>
-                {
-                    b.HasOne("Janari0.Services.Database.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .HasConstraintName("FK_OrderItems_Orders");
-
-                    b.HasOne("Janari0.Services.Database.ProductsSale", "ProductSale")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("ProductSaleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_OrderItems_ProductsSale");
-
-                    b.Navigation("Order");
-
-                    b.Navigation("ProductSale");
-                });
-
-            modelBuilder.Entity("Janari0.Services.Database.Output", b =>
-                {
-                    b.HasOne("Janari0.Services.Database.Buyer", "Buyer")
-                        .WithMany("Outputs")
-                        .HasForeignKey("BuyerId")
-                        .HasConstraintName("FK_Output_Buyer");
-
-                    b.HasOne("Janari0.Services.Database.Order", "Order")
-                        .WithMany("Outputs")
-                        .HasForeignKey("OrderId")
-                        .HasConstraintName("FK_Output_Orders");
-
-                    b.Navigation("Buyer");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.OutputItem", b =>
@@ -456,12 +409,8 @@ namespace Janari0.Services.Migrations
                     b.HasOne("Janari0.Services.Database.Output", "Output")
                         .WithMany("OutputItems")
                         .HasForeignKey("OutputId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_OutputItems_Output");
-
-                    b.HasOne("Janari0.Services.Database.ProductsSale", "ProductSale")
-                        .WithMany("OutputItems")
-                        .HasForeignKey("ProductSaleId")
-                        .HasConstraintName("FK_OutputItems_ProductsSale");
 
                     b.HasOne("Janari0.Services.Database.Seller", "Seller")
                         .WithMany("OutputItems")
@@ -469,8 +418,6 @@ namespace Janari0.Services.Migrations
                         .HasConstraintName("FK_OutputItems_Seller");
 
                     b.Navigation("Output");
-
-                    b.Navigation("ProductSale");
 
                     b.Navigation("Seller");
                 });
@@ -491,6 +438,7 @@ namespace Janari0.Services.Migrations
                     b.HasOne("Janari0.Services.Database.User", "User")
                         .WithMany("Products")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Products_Users");
 
@@ -502,8 +450,6 @@ namespace Janari0.Services.Migrations
                     b.HasOne("Janari0.Services.Database.Location", "Location")
                         .WithMany("ProductsSales")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("FK_ProductsSale_Locations");
 
                     b.HasOne("Janari0.Services.Database.Product", "Product")
@@ -518,28 +464,12 @@ namespace Janari0.Services.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Janari0.Services.Database.Seller", b =>
-                {
-                    b.HasOne("Janari0.Services.Database.ProductsSale", "ProductSale")
-                        .WithMany("Sellers")
-                        .HasForeignKey("ProductSaleId")
-                        .HasConstraintName("FK_Seller_ProductsSale");
-
-                    b.HasOne("Janari0.Services.Database.User", "User")
-                        .WithMany("Sellers")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_Seller_Users");
-
-                    b.Navigation("ProductSale");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Janari0.Services.Database.User", b =>
                 {
                     b.HasOne("Janari0.Services.Database.Location", "Location")
                         .WithMany("Users")
                         .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Users_Locations");
 
                     b.Navigation("Location");
@@ -548,8 +478,6 @@ namespace Janari0.Services.Migrations
             modelBuilder.Entity("Janari0.Services.Database.Buyer", b =>
                 {
                     b.Navigation("Orders");
-
-                    b.Navigation("Outputs");
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Location", b =>
@@ -557,13 +485,6 @@ namespace Janari0.Services.Migrations
                     b.Navigation("ProductsSales");
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Janari0.Services.Database.Order", b =>
-                {
-                    b.Navigation("OrderItems");
-
-                    b.Navigation("Outputs");
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Output", b =>
@@ -581,12 +502,6 @@ namespace Janari0.Services.Migrations
             modelBuilder.Entity("Janari0.Services.Database.ProductsSale", b =>
                 {
                     b.Navigation("Buyers");
-
-                    b.Navigation("OrderItems");
-
-                    b.Navigation("OutputItems");
-
-                    b.Navigation("Sellers");
                 });
 
             modelBuilder.Entity("Janari0.Services.Database.Seller", b =>
@@ -599,8 +514,6 @@ namespace Janari0.Services.Migrations
                     b.Navigation("Buyers");
 
                     b.Navigation("Products");
-
-                    b.Navigation("Sellers");
                 });
 #pragma warning restore 612, 618
         }

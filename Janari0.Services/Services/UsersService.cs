@@ -5,8 +5,10 @@ using Janari0.Services.Exceptions;
 using Janari0.Services.HelperMethods;
 using Janari0.Services.IServices;
 using Janari0.Services.Requests;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Janari0.Services.Services
@@ -15,21 +17,24 @@ namespace Janari0.Services.Services
     {
         public UsersService(Janari0Context context, IMapper mapper) : base(context, mapper) { }
 
-        public override Model.User Insert(UserInsertRequest insert)
+        public override Model.User? Insert(UserInsertRequest insert)
         {
             var user = Context.Users.Where(e => e.Username == insert.Username).FirstOrDefault();
             if (user != null)
             {
-                throw new UserErrorException("Username already exists.");
+                return null;
             }
             user = Context.Users.Where(p => p.PhoneNumber == insert.PhoneNumber).FirstOrDefault();
             if (user != null)
             {
-                throw new UserErrorException("Phone number already exists.");
+                return null;
+            }
+            user = Context.Users.Where(p => p.Email == insert.Email).FirstOrDefault();
+            if(user != null)
+            {
+                return null;
             }
             // Make a better phone number validator
-            var phoneNumberUtil = PhoneNumbers.PhoneNumberUtil.GetInstance();
-            var number = phoneNumberUtil.Parse(insert.PhoneNumber, null);
 
             var location = Mapper.Map<Database.Location>(insert.Location);
             Context.Locations.Add(location);
@@ -42,27 +47,35 @@ namespace Janari0.Services.Services
         public override Model.User? Update(int id, UserUpdateRequest update)
         {
             var set = Context.Set<Database.User>();
-        
-            if(update.Username != null)
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            if (update.Username != null)
             {
                 if(update.Username.Length < 3)
                 {
-                    throw new UserErrorException("Username must be longer than 2 characters!");
+                    return null;
                 }
-                if(set.Where(x => x.Username == update.Username).Any())
+                if(set.Where(x => x.Username == update.Username && x.UserId != id).Any())
                 {
-                    throw new UserErrorException("Username already exists!");
+                    return null;
                 }
             }
-            var entity = set.Find(id);
-
-            
-            if (entity == null)
+            var user = Context.Users.Where(p => p.PhoneNumber == update.PhoneNumber && p.UserId != id).FirstOrDefault();
+            if (user != null)
             {
-                throw new UserErrorException("User not found.");
+                return null;
             }
+            
             entity.Username = update.Username == null ? entity.Username : update.Username;
             entity.PhoneNumber = update.PhoneNumber == null ? entity.PhoneNumber : update.PhoneNumber;
+            entity.Email = update.Email == null ? entity.Email : update.Email;
+            entity.Uid = update.Uid == null ? entity.Uid : update.Uid;
 
             Context.Entry(entity).State = EntityState.Modified;
             Context.SaveChanges();
@@ -80,7 +93,7 @@ namespace Janari0.Services.Services
 
             return filteredQuery;
         }
-        public Model.User Login(string username, string password)
+        public Model.User? Login(string username, string password)
         {
             var entity = Context.Users.FirstOrDefault(x => x.Username == username);
 
@@ -90,9 +103,9 @@ namespace Janari0.Services.Services
             var hash = HashingAndSaltingMethod.GenerateHash(entity.PasswordSalt, password);
 
             if (hash != entity.PasswordHash)
-                throw new UserErrorException("Invalid login");
+                return null;
 
-            return Mapper.Map<Model.User>(entity);
+            return Mapper.Map<Model.User?>(entity);
         }
     }
 }

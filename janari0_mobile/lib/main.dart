@@ -5,6 +5,7 @@ import 'package:janari0/screens/main_screen.dart';
 import 'package:janari0/screens/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:janari0/utils/custom_form_field.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,17 +17,13 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Janari0',
       navigatorObservers: [FlutterSmartDialog.observer],
-      // here
       builder: FlutterSmartDialog.init(),
-      theme: ThemeData(
-          primarySwatch: Colors.green,
-          fontFamily: GoogleFonts.montserrat().fontFamily),
+      theme: ThemeData(primarySwatch: Colors.green, fontFamily: GoogleFonts.montserrat().fontFamily),
       home: auth.currentUser == null ? const MyHomePage() : const MainScreen(),
     );
   }
@@ -38,8 +35,6 @@ void setupAuthListener(context) {
       debugPrint('User is currently signed out!');
     } else {
       debugPrint('User is signed in!');
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     }
   });
 }
@@ -52,8 +47,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String email = "email";
-  String password = "password";
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  FocusNode focusPassword = FocusNode();
   @override
   void initState() {
     super.initState();
@@ -68,48 +64,55 @@ class _MyHomePageState extends State<MyHomePage> {
       physics: const ClampingScrollPhysics(),
       child: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/welcome_background_better_better.png'),
-                fit: BoxFit.fill,
-                opacity: 1)),
+        decoration:
+            const BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/welcome_background_better_better.png'), fit: BoxFit.fill, opacity: 1)),
         child: Column(
           children: [
             const SizedBox(
-              height: 50,
+              height: 80,
             ),
-            const SizedBox(
+            SizedBox(
                 width: double.infinity,
                 child: Text(
                   'Hello there!',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).textScaleFactor * 16),
                   textAlign: TextAlign.center,
                 )),
-            const SizedBox(
-              height: 350,
-            ),
+            const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Email',
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: CustomFormField().field(
+                controller: email,
+                question: "Email",
+                canBeNull: false,
+                onFieldSubmitted: (p0) => FocusScope.of(context).requestFocus(focusPassword),
+                horizontalTextPadding: 20,
+                verticalTextPadding: 10,
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                icon: const Icon(
+                  Icons.email,
+                  color: Colors.grey,
+                  size: 25,
                 ),
-                onChanged: (text) {
-                  email = text;
-                },
+                fieldTextFontSize: 15,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Password',
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: CustomFormField().field(
+                controller: password,
+                question: "Password",
+                canBeNull: false,
+                focusNode: focusPassword,
+                horizontalTextPadding: 20,
+                verticalTextPadding: 10,
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                icon: const Icon(
+                  Icons.key,
+                  color: Colors.grey,
+                  size: 25,
                 ),
-                onChanged: (text) {
-                  password = text;
-                },
+                fieldTextFontSize: 15,
               ),
             ),
             ElevatedButton(
@@ -117,19 +120,22 @@ class _MyHomePageState extends State<MyHomePage> {
               style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
               child: const Text('Login'),
             ),
-            Row(
-              children: [
-                const Text('You are not a member?'),
-                const SizedBox(
-                  width: 5,
-                ),
-                InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegisterScreen())),
-                    child: const Text('Register'))
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: Row(
+                children: [
+                  const Text('You are not a member?'),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InkWell(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ))
+                ],
+              ),
             )
           ],
         ),
@@ -139,13 +145,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loginUser() async {
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: password.text);
+      if (!mounted) return;
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        const SnackBar(content: Text('No user found for that email.'));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No user found for that email.')));
       } else if (e.code == 'wrong-password') {
-        const SnackBar(content: Text('Wrong password provided for that user.'));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wrong password provided for that user.')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
       }
     }
   }

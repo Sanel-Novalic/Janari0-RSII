@@ -38,8 +38,7 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
                 question: "Password",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle:
-                    const TextStyle(color: Colors.black, background: null),
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -62,11 +61,13 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
   }
 
   updateUser() async {
-    await FirebaseAuth.instance.currentUser!.updatePassword(controller.text);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Successfully updated the email')));
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    try {
+      await FirebaseAuth.instance.currentUser!.updatePassword(controller.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the password')));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+    }
   }
 }

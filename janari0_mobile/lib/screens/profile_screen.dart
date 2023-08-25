@@ -41,8 +41,7 @@ class _Profile extends State<Profile> {
                 width: 30,
               ),
               CircleAvatar(
-                backgroundImage: NetworkImage(FirebaseAuth
-                        .instance.currentUser!.photoURL ??
+                backgroundImage: NetworkImage(FirebaseAuth.instance.currentUser!.photoURL ??
                     "https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg"),
                 minRadius: 55,
               ),
@@ -57,8 +56,7 @@ class _Profile extends State<Profile> {
                   const SizedBox(
                     height: 30,
                   ),
-                  Text(widget.user.email,
-                      style: GoogleFonts.josefinSans(color: Colors.black))
+                  Text(widget.user.email, style: GoogleFonts.josefinSans(color: Colors.black))
                 ],
               ),
             ],
@@ -68,14 +66,8 @@ class _Profile extends State<Profile> {
             child: Padding(
               padding: const EdgeInsets.only(right: 30.0),
               child: ElevatedButton(
-                onPressed: () => {
-                  Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  EditProfile(user: widget.user)))
-                      .then((value) => setState(() => {}))
-                },
+                onPressed: () =>
+                    {Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(user: widget.user))).then((value) => setState(() => {}))},
                 style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
                 child: const Text('Edit profile'),
               ),
@@ -95,19 +87,10 @@ class _Profile extends State<Profile> {
             child: Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18, top: 5),
               child: ElevatedButton(
-                  onPressed: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ShowProducts(
-                                    products: widget.products,
-                                    text: "All products")))
-                      },
+                  onPressed: () =>
+                      {Navigator.push(context, MaterialPageRoute(builder: (context) => ShowProducts(products: widget.products, text: "All products")))},
                   style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7))),
+                      foregroundColor: Colors.white, backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7))),
                   child: const Row(
                     children: [
                       Icon(
@@ -131,18 +114,9 @@ class _Profile extends State<Profile> {
             child: Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18),
               child: ElevatedButton(
-                  onPressed: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ShowOrders(
-                                    user: widget.user, text: "Orders")))
-                      },
+                  onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => ShowOrders(user: widget.user, text: "Orders")))},
                   style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7))),
+                      foregroundColor: Colors.white, backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7))),
                   child: const Row(
                     children: [
                       Icon(
@@ -165,17 +139,8 @@ class _Profile extends State<Profile> {
             child: Align(
               alignment: FractionalOffset.bottomCenter,
               child: ElevatedButton(
-                onPressed: () => {
-                  FirebaseAuth.instance.signOut(),
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const MyHomePage()))
-                },
-                style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(125, 35),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18))),
+                onPressed: () => signOut(),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(125, 35), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
                 child: Text(
                   'Sign out',
                   style: GoogleFonts.roboto(),
@@ -186,5 +151,11 @@ class _Profile extends State<Profile> {
         ],
       ),
     );
+  }
+
+  signOut() async {
+    await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage()));
   }
 }
