@@ -1,6 +1,16 @@
 # Janari0-RSII
 
-Start the Docker with the "docker-compose up --build" command. To test the API, open "https://localhost:7158/swagger/index.html".
+# Setup API and database
+navigate to where docker-compose.yml is located and run command:
+```
+docker compose up --build
+```
+
+# Setup Desktop app
+Start the desktop application with this command:
+```
+flutter run --dart-define=baseUrl=https://localhost:7158/
+```
 
 All test users have the same password: test123
 
@@ -25,16 +35,8 @@ for example:
             "request": "launch",
             "type": "dart",
             "args":[
-                "--dart-define", "baseUrl=https://192.168.50.152:7158/"
+                "--dart-define", "baseUrl=https://192.168.50.132:7158/"
             ]
         },
 ```
 By default flutter app is configured to work with emulator and docker api services.
-
-
-
-# Setup API and database
-navigate to where docker-compose.yml is located and run command:
-```
-docker compose up --build
-```
