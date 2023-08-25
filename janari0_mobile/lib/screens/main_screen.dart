@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -40,12 +42,25 @@ class _MainScreen extends State<MainScreen> {
   UserProvider userProvider = UserProvider();
   ProductSaleProvider productSaleProvider = ProductSaleProvider();
   u.User user = u.User();
-  late Future<List<ProductSale>> myFuture;
+  late Stream<List<ProductSale>> myFuture;
+  final StreamController<List<ProductSale>> _dataController = StreamController<List<ProductSale>>();
+  Stream<List<ProductSale>> get dataStream => _dataController.stream;
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
-    myFuture = loadData();
+    _dataController.addStream(loadData());
+  }
+
+  Future<void> _refreshData() async {
+    freshProducts = [];
+    nearlyExpiredProducts = [];
+    expiredProducts = [];
+    await _dataController.addStream(loadData());
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Successfully refreshed the page'),
+    ));
   }
 
   Future getLocation(u.User user) async {
@@ -81,7 +96,7 @@ class _MainScreen extends State<MainScreen> {
     freeProducts = await productSaleProvider.getCarouselData(searchRequest);
   }
 
-  Future<List<ProductSale>> loadData() async {
+  Stream<List<ProductSale>> loadData() async* {
     var searchRequest = {'uid': FirebaseAuth.instance.currentUser?.uid};
     var tmpData = await productProvider.get(searchRequest);
     for (var product in tmpData) {
@@ -103,152 +118,155 @@ class _MainScreen extends State<MainScreen> {
       products = tmpData;
     });
     if (nearbyProducts.isEmpty) nearbyProducts = List<ProductSale>.empty();
-    return nearbyProducts;
+    yield nearbyProducts;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ProductSale>>(
-        future: myFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Scaffold(
-                backgroundColor: Colors.white,
-                body: Center(
-                    child: SpinKitCircle(
-                  color: Colors.green,
-                  size: 50.0,
-                )));
-          }
-          return Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.qr_code),
-                  tooltip: 'Show QR Code Scanner',
-                  onPressed: () {
-                    QRCodeScanner.startBarcodeScanner(context, user);
-                  },
-                ),
-                actions: <Widget>[
-                  IconButton(
-                      icon: const Icon(Icons.search),
-                      tooltip: 'Show search bar',
-                      onPressed: () {
-                        showSearch(
-                            context: context,
-                            delegate: SearchPage<ProductSale>(
-                              items: allProductsSale,
-                              searchLabel: 'Search products on sale',
-                              suggestion: ListView.builder(
-                                itemCount: recommendedProductsSale.length,
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemBuilder: (BuildContext context, int i) => Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                      onTap: () => Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: recommendedProductsSale[i], user: user))),
-                                      child: SearchCard(productSale: recommendedProductsSale[i])),
-                                ),
-                              ),
-                              failure: const Center(
-                                child: Text('No product found :('),
-                              ),
-                              filter: (product) => [
-                                product.product?.name,
-                              ],
-                              builder: (productSale) => Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: InkWell(
-                                      onTap: () => Navigator.push(
-                                          context, MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: productSale, user: user))),
-                                      child: SearchCard(productSale: productSale))),
-                            ));
-                      }),
-                  IconButton(
-                    icon: const Icon(Icons.person),
-                    tooltip: 'Show profile',
-                    onPressed: () async {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Profile(
-                                    user: user,
-                                    products: products,
-                                  )));
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: StreamBuilder<List<ProductSale>>(
+          stream: dataStream,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Center(
+                      child: SpinKitCircle(
+                    color: Colors.green,
+                    size: 50.0,
+                  )));
+            }
+            return Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    icon: const Icon(Icons.qr_code),
+                    tooltip: 'Show QR Code Scanner',
+                    onPressed: () {
+                      QRCodeScanner.startBarcodeScanner(context, user);
                     },
                   ),
-                ],
-              ),
-              floatingActionButton: Stack(
-                children: [
-                  ExpandableSponsorFloatingButton(
-                    products: products,
-                    user: user,
-                  )
-                ],
-              ),
-              body: Container(
-                decoration: const BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover, opacity: 0.05)),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(15),
-                        alignment: Alignment.center,
-                        child: const Text("PRODUCTS"),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        alignment: Alignment.center,
-                        child: const Text("ABOUT TO EXPIRE"),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          CustomOutlineButton(text: 'Fresh', color: Colors.green, products: freshProducts),
-                          CustomOutlineButton(
-                            text: 'Within one week',
-                            color: Colors.yellow,
-                            products: nearlyExpiredProducts,
-                          ),
-                          CustomOutlineButton(
-                            text: 'Expired',
-                            color: Colors.red,
-                            products: expiredProducts,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 85),
-                      CustomCarousel(
-                        text: "Nearby",
-                        productsSale: nearbyProducts,
-                        user: user,
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      const Image(image: NetworkImage("https://developers.google.com/static/admob/images/ios-testad-0-admob.png")),
-                      CustomCarousel(
-                        text: "Free",
-                        productsSale: freeProducts,
-                        user: user,
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      )
-                    ],
-                  ),
+                  actions: <Widget>[
+                    IconButton(
+                        icon: const Icon(Icons.search),
+                        tooltip: 'Show search bar',
+                        onPressed: () {
+                          showSearch(
+                              context: context,
+                              delegate: SearchPage<ProductSale>(
+                                items: allProductsSale,
+                                searchLabel: 'Search products on sale',
+                                suggestion: ListView.builder(
+                                  itemCount: recommendedProductsSale.length,
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemBuilder: (BuildContext context, int i) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                        onTap: () => Navigator.push(context,
+                                            MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: recommendedProductsSale[i], user: user))),
+                                        child: SearchCard(productSale: recommendedProductsSale[i])),
+                                  ),
+                                ),
+                                failure: const Center(
+                                  child: Text('No product found :('),
+                                ),
+                                filter: (product) => [
+                                  product.product?.name,
+                                ],
+                                builder: (productSale) => Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: InkWell(
+                                        onTap: () => Navigator.push(
+                                            context, MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: productSale, user: user))),
+                                        child: SearchCard(productSale: productSale))),
+                              ));
+                        }),
+                    IconButton(
+                      icon: const Icon(Icons.person),
+                      tooltip: 'Show profile',
+                      onPressed: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Profile(
+                                      user: user,
+                                      products: products,
+                                    )));
+                      },
+                    ),
+                  ],
                 ),
-              ));
-        });
+                floatingActionButton: Stack(
+                  children: [
+                    ExpandableSponsorFloatingButton(
+                      products: products,
+                      user: user,
+                    )
+                  ],
+                ),
+                body: Container(
+                  decoration: const BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover, opacity: 0.05)),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(15),
+                          alignment: Alignment.center,
+                          child: const Text("PRODUCTS"),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          child: const Text("ABOUT TO EXPIRE"),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            CustomOutlineButton(text: 'Fresh', color: Colors.green, products: freshProducts),
+                            CustomOutlineButton(
+                              text: 'Within one week',
+                              color: Colors.yellow,
+                              products: nearlyExpiredProducts,
+                            ),
+                            CustomOutlineButton(
+                              text: 'Expired',
+                              color: Colors.red,
+                              products: expiredProducts,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 85),
+                        CustomCarousel(
+                          text: "Nearby",
+                          productsSale: nearbyProducts,
+                          user: user,
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        const Image(image: NetworkImage("https://developers.google.com/static/admob/images/ios-testad-0-admob.png")),
+                        CustomCarousel(
+                          text: "Free",
+                          productsSale: freeProducts,
+                          user: user,
+                        ),
+                        const SizedBox(
+                          height: 50,
+                        )
+                      ],
+                    ),
+                  ),
+                ));
+          }),
+    );
   }
 }

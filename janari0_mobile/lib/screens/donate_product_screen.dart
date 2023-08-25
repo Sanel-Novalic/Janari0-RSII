@@ -34,6 +34,7 @@ class _DonateProductScreen extends State<DonateProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    priceController.text = widget.hasPrice ? '' : 'Free';
     return Scaffold(
       appBar: AppBar(
         title: const Text("Put product on sale"),

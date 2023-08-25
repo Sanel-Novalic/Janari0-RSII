@@ -14,7 +14,8 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreen extends State<ChangePasswordScreen> {
   UserProvider userProvider = UserProvider();
-  TextEditingController controller = TextEditingController();
+  TextEditingController currentPasswordController = TextEditingController();
+  TextEditingController newPasswordController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -34,8 +35,24 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CustomFormField().field(
-                controller: controller,
-                question: "Password",
+                controller: currentPasswordController,
+                question: "Current password",
+                horizontalTextPadding: 20,
+                verticalTextPadding: 10,
+                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                icon: const Icon(
+                  Icons.key,
+                  color: Colors.grey,
+                  size: 25,
+                ),
+                fieldTextFontSize: 15,
+                borderColor: Colors.black),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CustomFormField().field(
+                controller: newPasswordController,
+                question: "New password",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
                 labelTextStyle: const TextStyle(color: Colors.black, background: null),
@@ -62,11 +79,16 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
 
   updateUser() async {
     try {
-      await FirebaseAuth.instance.currentUser!.updatePassword(controller.text);
+      var result = await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
+          EmailAuthProvider.credential(email: FirebaseAuth.instance.currentUser!.email!, password: currentPasswordController.text));
+      await result.user!.updatePassword(newPasswordController.text);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the password')));
       Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wrong current password')));
+      }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
   }
