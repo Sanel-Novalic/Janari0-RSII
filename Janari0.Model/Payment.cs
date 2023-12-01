@@ -10,8 +10,6 @@ namespace Janari0.Model
         public decimal Amount { get; set; }
         public bool Successful { get; set; }
         public int ProductSaleId { get; set; }
-        public decimal UsedLoyaltyPoints { get; set; }
         public int BuyerId { get; set; }
-
     }
 }

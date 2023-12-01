@@ -10,9 +10,6 @@ namespace Janari0.Model.SearchObjects
         public string BuyerName { get; set; }
         public DateTime Date { get; set; }
         public bool? Canceled { get; set; }
-
         public int UserId { get; set; }
-        public bool IncludeItems { get; set; }
-        public bool IncludeBuyer { get; set; }
     }
 }

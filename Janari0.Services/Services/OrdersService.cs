@@ -20,22 +20,6 @@ namespace Janari0.Services.Services
         public OrdersService(Janari0Context context, IMapper mapper) : base(context, mapper)
         {
         }
-        public override IQueryable<Order> AddInclude(IQueryable<Order> query, OrderSearchObject search = null)
-        {
-            if (search?.IncludeBuyer == true)
-            {
-                query = query.Include(i => i.Buyer);
-
-            }
-            if (search?.IncludeItems == true)
-            {
-                query = query.Include("OrderItems.Product.ProductType");
-                query = query.Include("OrderItems.Product.Seller");
-            }
-
-            return query;
-        }
-
         public virtual IEnumerable<Model.Order> Get(OrderSearchObject? search = null)
         {
             var list = base.Get(search);
@@ -68,7 +52,7 @@ namespace Janari0.Services.Services
             var orderItemsService = new OrderItemsService(Context, Mapper);
             var outputService = new OutputService(Context, Mapper);
             var outputItemsService = new OutputItemsService(Context, Mapper);
-            OutputSearchObject searchOutput = new OutputSearchObject() { OrderId = dbentity.OrderId, Include = true };
+            OutputSearchObject searchOutput = new OutputSearchObject() { OrderId = dbentity.OrderId};
             var outputs = outputService.Get(searchOutput);
 
             if (outputs.Count() > 0)

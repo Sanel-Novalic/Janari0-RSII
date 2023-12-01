@@ -8,7 +8,5 @@ namespace Janari0.Model.SearchObjects
     {
         public string BuyerName { get; set; }
         public int OrderId { get; set; }
-
-        public bool Include { get; set; }
     }
 }

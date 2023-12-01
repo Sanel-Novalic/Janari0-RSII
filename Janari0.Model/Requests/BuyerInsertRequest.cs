@@ -9,6 +9,5 @@ namespace Janari0.Model.Requests
     {
         public int UserId { get; set; }
         public bool Status { get; set; }
-
     }
 }

@@ -11,6 +11,5 @@ namespace Janari0.Services.Requests
         public decimal Price { get; set; }
         public decimal? Discount { get; set; }
         public int SellerId { get; set; }
-
     }
 }

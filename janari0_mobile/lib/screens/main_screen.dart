@@ -49,7 +49,9 @@ class _MainScreen extends State<MainScreen> {
   void initState() {
     super.initState();
     initializeDateFormatting();
-    _dataController.addStream(loadData());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _dataController.addStream(loadData());
+    });
   }
 
   Future<void> _refreshData() async {

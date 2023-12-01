@@ -9,6 +9,5 @@ namespace Janari0.Model.Requests
     {
         [Required(AllowEmptyStrings = false)]
         public int ProductSaleId { get; set; }
-
     }
 }

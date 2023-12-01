@@ -10,15 +10,10 @@ namespace Janari0.Services.Requests
     public class UserUpdateRequest
     {
         public string Username { get; set; }
-
         public string PhoneNumber { get; set; }
-
         public string Role { get; set; }
-
         public string Email { get; set; }
-
         public int? LocationId { get; set; }
-
         public string Uid { get; set; }
     }
 }

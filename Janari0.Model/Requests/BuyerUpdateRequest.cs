@@ -7,7 +7,6 @@ namespace Janari0.Model.Requests
 {
     public class BuyerUpdateRequest
     {
-        //PersonUpdateRequest
         [Required(AllowEmptyStrings = false)]
         public string FirstName { get; set; }
         [Required(AllowEmptyStrings = false)]

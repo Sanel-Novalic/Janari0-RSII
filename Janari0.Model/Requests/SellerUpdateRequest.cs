@@ -32,6 +32,5 @@ namespace Janari0.Model.Requests
         public string PasswordConfirmation { get; set; }
         [Required(AllowEmptyStrings = false)]
         public string PayPalEmail { get; set; }
-
     }
 }
