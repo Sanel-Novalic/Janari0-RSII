@@ -22,7 +22,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfile extends State<EditProfile> {
   UserProvider userProvider = UserProvider();
-  List<UploadJob>? _pictures = [];
+  List<UploadJob> _pictures = [];
   @override
   void initState() {
     super.initState();
@@ -53,7 +53,6 @@ class _EditProfile extends State<EditProfile> {
                 children: [
                   PictureUploadWidget(
                     storageInstance: FirebaseStorage.instance,
-                    initialImages: _pictures,
                     onPicturesChange: pictureCallback,
                     buttonStyle: PictureUploadButtonStyle(),
                     buttonText: 'Upload Picture',
@@ -130,13 +129,18 @@ class _EditProfile extends State<EditProfile> {
 
   void pictureCallback(
       {List<UploadJob>? uploadJobs, bool? pictureUploadProcessing}) {
-    _pictures = uploadJobs;
+    _pictures = uploadJobs ?? [];
   }
 
   Future<void> changePicture() async {
-    debugPrint(_pictures!.length.toString());
-    var picture = _pictures?.first;
-    var link = await picture!.storageReference!.getDownloadURL();
+    if (_pictures.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'You haven\'t selected a photo to replace the current one')));
+      return;
+    }
+    var picture = _pictures.first;
+    var link = await picture.storageReference!.getDownloadURL();
 
     await FirebaseAuth.instance.currentUser!.updatePhotoURL(link);
     if (!mounted) return;

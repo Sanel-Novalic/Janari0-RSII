@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:janari0/firebase_options.dart';
 import 'package:janari0/screens/main_screen.dart';
 import 'package:janari0/screens/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,7 +10,9 @@ import 'package:janari0/utils/custom_form_field.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -23,7 +26,9 @@ class MyApp extends StatelessWidget {
       title: 'Janari0',
       navigatorObservers: [FlutterSmartDialog.observer],
       builder: FlutterSmartDialog.init(),
-      theme: ThemeData(primarySwatch: Colors.green, fontFamily: GoogleFonts.montserrat().fontFamily),
+      theme: ThemeData(
+          primarySwatch: Colors.green,
+          fontFamily: GoogleFonts.montserrat().fontFamily),
       home: auth.currentUser == null ? const MyHomePage() : const MainScreen(),
     );
   }
@@ -47,12 +52,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
-  FocusNode focusPassword = FocusNode();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final FocusNode focusPassword = FocusNode();
+  final FocusNode focusEmail = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
+
+    focusPassword.addListener(() => scrollToFocus(focusPassword));
+    focusEmail.addListener(() => scrollToFocus(focusEmail));
+  }
+
+  void scrollToFocus(FocusNode focusNode) {
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (_scrollController.hasClients && focusNode.hasFocus) {
+        final targetOffset = _scrollController.position.maxScrollExtent;
+        _scrollController.animateTo(
+          targetOffset,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -62,10 +85,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         body: SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
+      controller: _scrollController,
       child: Container(
         height: MediaQuery.of(context).size.height,
-        decoration:
-            const BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/welcome_background_better_better.png'), fit: BoxFit.fill, opacity: 1)),
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage(
+                    'assets/images/welcome_background_better_better.png'),
+                fit: BoxFit.fill,
+                opacity: 1)),
         child: Column(
           children: [
             const SizedBox(
@@ -75,7 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: double.infinity,
                 child: Text(
                   'Hello there!',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).textScaleFactor * 16),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).textScaleFactor * 16),
                   textAlign: TextAlign.center,
                 )),
             const Spacer(),
@@ -85,10 +115,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: email,
                 question: "Email",
                 canBeNull: false,
-                onFieldSubmitted: (p0) => FocusScope.of(context).requestFocus(focusPassword),
+                focusNode: focusEmail,
+                onFieldSubmitted: (p0) => {
+                  FocusScope.of(context).requestFocus(focusPassword),
+                  scrollToFocus(focusPassword)
+                },
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                labelTextStyle:
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.email,
                   color: Colors.grey,
@@ -106,7 +141,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 focusNode: focusPassword,
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                labelTextStyle:
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -129,7 +165,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 5,
                   ),
                   InkWell(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterScreen())),
                       child: const Text(
                         'Register',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -143,18 +182,31 @@ class _MyHomePageState extends State<MyHomePage> {
     ));
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    focusPassword.dispose();
+    focusEmail.dispose();
+    super.dispose();
+  }
+
   Future<void> loginUser() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: password.text);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email.text, password: password.text);
       if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No user found for that email.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No user found for that email.')));
       } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wrong password provided for that user.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Wrong password provided for that user.')));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.code)));
       }
     }
   }

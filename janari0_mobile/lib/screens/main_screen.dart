@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:janari0/main.dart';
 import 'package:janari0/providers/location_provider.dart';
 import 'package:janari0/providers/product_provider.dart';
 import 'package:janari0/providers/product_sale_provider.dart';
@@ -42,8 +43,9 @@ class _MainScreen extends State<MainScreen> {
   UserProvider userProvider = UserProvider();
   ProductSaleProvider productSaleProvider = ProductSaleProvider();
   u.User user = u.User();
-  late Stream<List<ProductSale>> myFuture;
-  final StreamController<List<ProductSale>> _dataController = StreamController<List<ProductSale>>();
+  Timer? _logoutTimer;
+  final StreamController<List<ProductSale>> _dataController =
+      StreamController<List<ProductSale>>();
   Stream<List<ProductSale>> get dataStream => _dataController.stream;
   @override
   void initState() {
@@ -89,12 +91,21 @@ class _MainScreen extends State<MainScreen> {
     }
     locationData = await location.getLocation();
     LocationProvider locationProvider = LocationProvider();
-    var locationUpdateRequest = LocationCURequest(latitude: locationData.latitude!, longitude: locationData.longitude!);
+    var locationUpdateRequest = LocationCURequest(
+        latitude: locationData.latitude!, longitude: locationData.longitude!);
     await locationProvider.update(user.locationId!, locationUpdateRequest);
 
-    var searchRequest = {'carousel': "Nearby", 'latitude': locationData.latitude, 'longitude': locationData.longitude};
+    var searchRequest = {
+      'carousel': "Nearby",
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude
+    };
     nearbyProducts = await productSaleProvider.getCarouselData(searchRequest);
-    searchRequest = {'carousel': "Free", 'latitude': locationData.latitude, 'longitude': locationData.longitude};
+    searchRequest = {
+      'carousel': "Free",
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude
+    };
     freeProducts = await productSaleProvider.getCarouselData(searchRequest);
   }
 
@@ -106,7 +117,9 @@ class _MainScreen extends State<MainScreen> {
         expiredProducts.add(product);
       } else {
         freshProducts.add(product);
-        if (product.expirationDate!.compareTo(DateTime.now().add(const Duration(days: 7))) < 0) {
+        if (product.expirationDate!
+                .compareTo(DateTime.now().add(const Duration(days: 7))) <
+            0) {
           nearlyExpiredProducts.add(product);
         }
       }
@@ -114,7 +127,8 @@ class _MainScreen extends State<MainScreen> {
     var tmpUser = await userProvider.get(searchRequest);
     allProductsSale = await productSaleProvider.get(null);
     await getLocation(user);
-    recommendedProductsSale = (await productSaleProvider.getRecommended(user.userId))!;
+    recommendedProductsSale =
+        (await productSaleProvider.getRecommended(user.userId))!;
     setState(() {
       user = tmpUser.first;
       products = tmpData;
@@ -123,8 +137,27 @@ class _MainScreen extends State<MainScreen> {
     yield nearbyProducts;
   }
 
+  void startTimeout() {
+    cancelLogoutTimeout();
+
+    _logoutTimer = Timer(const Duration(seconds: 20), () async {
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Something went wrong and couldn\'t load the page'),
+      ));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MyHomePage()));
+    });
+  }
+
+  void cancelLogoutTimeout() {
+    _logoutTimer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
+    startTimeout();
     return RefreshIndicator(
       onRefresh: _refreshData,
       child: StreamBuilder<List<ProductSale>>(
@@ -138,6 +171,8 @@ class _MainScreen extends State<MainScreen> {
                     color: Colors.green,
                     size: 50.0,
                   )));
+            } else {
+              cancelLogoutTimeout();
             }
             return Scaffold(
                 appBar: AppBar(
@@ -162,12 +197,22 @@ class _MainScreen extends State<MainScreen> {
                                   itemCount: recommendedProductsSale.length,
                                   scrollDirection: Axis.vertical,
                                   shrinkWrap: true,
-                                  itemBuilder: (BuildContext context, int i) => Padding(
+                                  itemBuilder: (BuildContext context, int i) =>
+                                      Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: InkWell(
-                                        onTap: () => Navigator.push(context,
-                                            MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: recommendedProductsSale[i], user: user))),
-                                        child: SearchCard(productSale: recommendedProductsSale[i])),
+                                        onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProductDetailsScreen(
+                                                        productSale:
+                                                            recommendedProductsSale[
+                                                                i],
+                                                        user: user))),
+                                        child: SearchCard(
+                                            productSale:
+                                                recommendedProductsSale[i])),
                                   ),
                                 ),
                                 failure: const Center(
@@ -180,8 +225,15 @@ class _MainScreen extends State<MainScreen> {
                                     padding: const EdgeInsets.all(2.0),
                                     child: InkWell(
                                         onTap: () => Navigator.push(
-                                            context, MaterialPageRoute(builder: (context) => ProductDetailsScreen(productSale: productSale, user: user))),
-                                        child: SearchCard(productSale: productSale))),
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProductDetailsScreen(
+                                                        productSale:
+                                                            productSale,
+                                                        user: user))),
+                                        child: SearchCard(
+                                            productSale: productSale))),
                               ));
                         }),
                     IconButton(
@@ -208,7 +260,11 @@ class _MainScreen extends State<MainScreen> {
                   ],
                 ),
                 body: Container(
-                  decoration: const BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover, opacity: 0.05)),
+                  decoration: const BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage('assets/images/background.png'),
+                          fit: BoxFit.cover,
+                          opacity: 0.05)),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),
@@ -230,7 +286,10 @@ class _MainScreen extends State<MainScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            CustomOutlineButton(text: 'Fresh', color: Colors.green, products: freshProducts),
+                            CustomOutlineButton(
+                                text: 'Fresh',
+                                color: Colors.green,
+                                products: freshProducts),
                             CustomOutlineButton(
                               text: 'Within one week',
                               color: Colors.yellow,
@@ -255,7 +314,9 @@ class _MainScreen extends State<MainScreen> {
                         const SizedBox(
                           height: 50,
                         ),
-                        const Image(image: NetworkImage("https://developers.google.com/static/admob/images/ios-testad-0-admob.png")),
+                        const Image(
+                            image: NetworkImage(
+                                "https://developers.google.com/static/admob/images/ios-testad-0-admob.png")),
                         CustomCarousel(
                           text: "Free",
                           productsSale: freeProducts,

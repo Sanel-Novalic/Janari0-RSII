@@ -14,7 +14,8 @@ import '../providers/product_provider.dart';
 class ProductDetailsScreen extends StatefulWidget {
   final User user;
   final ProductSale productSale;
-  const ProductDetailsScreen({super.key, required this.productSale, required this.user});
+  const ProductDetailsScreen(
+      {super.key, required this.productSale, required this.user});
   @override
   State<StatefulWidget> createState() => _ProductDetailsScreen();
 }
@@ -70,7 +71,8 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
             items: widget.productSale.product!.photos
                 .map((item) => Center(
                     child: Image.network(
-                        item.link ?? "https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg",
+                        item.link ??
+                            "https://assets.bonappetit.com/photos/63a390eda38261d1c3bdc555/4:5/w_1920,h_2400,c_limit/best-food-writing-2022-lede.jpg",
                         fit: BoxFit.cover,
                         width: MediaQuery.of(context).size.width)))
                 .toList(),
@@ -83,24 +85,33 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
                 child: Container(
                   width: 12.0,
                   height: 12.0,
-                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 4.0),
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(_current == entry.key ? 0.9 : 0.4)),
+                      color: (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black)
+                          .withOpacity(_current == entry.key ? 0.9 : 0.4)),
                 ),
               );
             }).toList(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 5),
-            child: Align(alignment: Alignment.bottomLeft, child: Text(widget.productSale.product!.name!, style: const TextStyle(color: Colors.grey))),
+            child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(widget.productSale.product!.name!,
+                    style: const TextStyle(color: Colors.grey))),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 10),
             child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  widget.productSale.price,
+                  widget.productSale.price == "Free"
+                      ? widget.productSale.price
+                      : "\$${widget.productSale.price}",
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 )),
           ),
@@ -111,14 +122,19 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
             padding: const EdgeInsets.only(left: 8.0, top: 10),
             child: Align(
               alignment: Alignment.bottomLeft,
-              child: Text(widget.productSale.description ?? "", style: const TextStyle(color: Colors.grey)),
+              child: Text(widget.productSale.description ?? "",
+                  style: const TextStyle(color: Colors.grey)),
             ),
           ),
           const Spacer(),
           ElevatedButton(
-            onPressed: () => widget.productSale.price == "Free" ? orderItem() : buyItem(),
+            onPressed: () =>
+                widget.productSale.price == "Free" ? orderItem() : buyItem(),
             style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
             child: const Text('Order'),
+          ),
+          const SizedBox(
+            height: 24,
           ),
         ],
       ),
@@ -136,17 +152,19 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
               ),
               content: Text(
                 content,
-                style: const TextStyle(color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
+                style: const TextStyle(
+                    color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text("Ok")),
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Ok")),
               ],
             ));
   }
 
   buyItem() async {
     bool block = true;
-    // Need to implement payment system here onPressed (checkout button)
     var tokenKey = 'sandbox_mfhs47gw_r4gzjpxcvzxmfdvg';
     var request = BraintreePayPalRequest(amount: widget.productSale.price);
     Payment payment = Payment();
@@ -163,7 +181,8 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
               ),
               content: const Text(
                 "You're going to be redirected to Paypal to finish your payment!\nNote: If you want to canel your payment you can do so on PayPal!",
-                style: TextStyle(color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
+                style: TextStyle(
+                    color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
               ),
               actions: [
                 TextButton(
@@ -253,7 +272,9 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
                   ),
                   content: Text(
                     "Payment was cancelled for product ${widget.productSale.product!.name}!",
-                    style: const TextStyle(color: Color.fromARGB(255, 107, 107, 107), fontSize: 18),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 107, 107, 107),
+                        fontSize: 18),
                   ),
                   actions: [
                     TextButton(
@@ -269,11 +290,18 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
         return;
       }
     }
-    Map order = {"items": items, "status": true, "canceled": false, "buyerId": payment.buyerId, "price": payment.amount};
+    Map order = {
+      "items": items,
+      "status": true,
+      "canceled": false,
+      "buyerId": payment.buyerId,
+      "price": payment.amount
+    };
     if (paymentsFailed == 0) {
       var returnedOrder = await orderProvider.insert(order);
       var insertedOrder = await orderProvider.getById(returnedOrder!.orderId!);
-      var output = await paymentProvider.saveTransaction(insertedOrder.orderId!);
+      var output =
+          await paymentProvider.saveTransaction(insertedOrder.orderId!);
 
       if (!mounted) return;
       await showDialog(
@@ -303,7 +331,8 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
                 ],
               ));
     } else {
-      await _buildDialog("Payment failed!", "Something went wrong with the payment system. Please, try again later!");
+      await _buildDialog("Payment failed!",
+          "Something went wrong with the payment system. Please, try again later!");
     }
   }
 
@@ -316,7 +345,13 @@ class _ProductDetailsScreen extends State<ProductDetailsScreen> {
     buyerData.userId = widget.user.userId;
     buyerData.status = false;
     var buyer = await buyerProvider.insert(buyerData);
-    Map order = {"items": items, "status": true, "canceled": false, "buyerId": buyer?.buyerId, "price": 0};
+    Map order = {
+      "items": items,
+      "status": true,
+      "canceled": false,
+      "buyerId": buyer?.buyerId,
+      "price": 0
+    };
     var returnedOrder = await orderProvider.insert(order);
     await paymentProvider.saveTransaction(returnedOrder!.orderId!);
     if (!mounted) return;

@@ -7,10 +7,7 @@
         {
             "name": "janari0_mobile_conf",
             "request": "launch",
-            "type": "dart",
-            "args":[
-                "--dart-define", "baseUrl=https://192.168.50.152:7158/"
-            ]
+            "type": "dart"
         }
     ]
 }

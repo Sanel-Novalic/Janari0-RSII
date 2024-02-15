@@ -36,29 +36,14 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CustomFormField().field(
-                controller: currentPasswordController,
-                question: "Current password",
-                horizontalTextPadding: 20,
-                verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
-                icon: const Icon(
-                  Icons.key,
-                  color: Colors.grey,
-                  size: 25,
-                ),
-                fieldTextFontSize: 15,
-                borderColor: Colors.black),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CustomFormField().field(
                 controller: controller,
                 question: "New email",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                labelTextStyle:
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
-                  Icons.key,
+                  Icons.email,
                   color: Colors.grey,
                   size: 25,
                 ),
@@ -81,17 +66,23 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
   updateUser() async {
     widget.user.email = controller.text;
     try {
-      var result = await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
-          EmailAuthProvider.credential(email: FirebaseAuth.instance.currentUser!.email!, password: currentPasswordController.text));
+      var result = await FirebaseAuth.instance.currentUser!
+          .reauthenticateWithCredential(EmailAuthProvider.credential(
+              email: FirebaseAuth.instance.currentUser!.email!,
+              password: currentPasswordController.text));
       await result.user!.updateEmail(widget.user.email);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the email')));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully updated the email')));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wrong current password')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Wrong current password')));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.code)));
       }
       return;
     }
@@ -100,7 +91,8 @@ class _ChangeEmailScreen extends State<ChangeEmailScreen> {
       await userProvider.update(widget.user.userId, widget.user);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 }

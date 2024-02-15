@@ -25,7 +25,9 @@ class SearchCard extends StatelessWidget {
         const Spacer(),
         Padding(
           padding: const EdgeInsets.only(right: 10.0),
-          child: Text(productSale.price),
+          child: Text(productSale.price == "Free"
+              ? productSale.price
+              : "\$${productSale.price}"),
         )
       ],
     ));

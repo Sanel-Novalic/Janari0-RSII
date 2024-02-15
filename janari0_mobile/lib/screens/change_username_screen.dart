@@ -41,7 +41,7 @@ class _ChangeUsernameScreen extends State<ChangeUsernameScreen> {
                 labelTextStyle:
                     const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
-                  Icons.key,
+                  Icons.person,
                   color: Colors.grey,
                   size: 25,
                 ),
@@ -63,7 +63,15 @@ class _ChangeUsernameScreen extends State<ChangeUsernameScreen> {
 
   updateUsername() async {
     widget.user.username = usernameController.text;
-    await userProvider.update(widget.user.userId, widget.user);
+    var user = await userProvider.update(widget.user.userId, widget.user);
+
+    if (user == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Either the username already exists or the username is invalid')));
+      return;
+    }
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

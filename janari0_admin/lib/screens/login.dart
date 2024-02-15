@@ -7,7 +7,7 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String username = "";
+    String email = "";
     String password = "";
     return Scaffold(
         body: Column(
@@ -29,10 +29,10 @@ class Login extends StatelessWidget {
           child: TextField(
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: 'Username',
+              hintText: 'Email',
             ),
             onChanged: (text) {
-              username = text;
+              email = text;
             },
           ),
         ),
@@ -49,7 +49,7 @@ class Login extends StatelessWidget {
           ),
         ),
         ElevatedButton(
-          onPressed: () => loginUser(username, password, context),
+          onPressed: () => loginUser(email, password, context),
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
           child: const Text('Login'),
         ),
@@ -57,12 +57,13 @@ class Login extends StatelessWidget {
     ));
   }
 
-  Future loginUser(String username, String password, BuildContext context) async {
+  Future loginUser(String email, String password, BuildContext context) async {
     UserProvider userProvider = UserProvider();
     try {
-      await userProvider.login(username, password);
+      await userProvider.login(email, password);
       if (context.mounted) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const MainScreen()));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

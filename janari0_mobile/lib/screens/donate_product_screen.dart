@@ -14,7 +14,11 @@ class DonateProductScreen extends StatefulWidget {
   final List<Product> products;
   final bool hasPrice;
   final User user;
-  const DonateProductScreen({super.key, required this.products, required this.hasPrice, required this.user});
+  const DonateProductScreen(
+      {super.key,
+      required this.products,
+      required this.hasPrice,
+      required this.user});
 
   @override
   State<StatefulWidget> createState() => _DonateProductScreen();
@@ -81,12 +85,14 @@ class _DonateProductScreen extends State<DonateProductScreen> {
                           ),
                         ),
                       ),
-                      compareFn: (item, selectedItem) => item.name == selectedItem.name,
+                      compareFn: (item, selectedItem) =>
+                          item.name == selectedItem.name,
                       dropdownDecoratorProps: DropDownDecoratorProps(
                         dropdownSearchDecoration: InputDecoration(
                           labelText: 'Products',
                           filled: true,
-                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
+                          fillColor:
+                              Theme.of(context).inputDecorationTheme.fillColor,
                         ),
                       ),
                       dropdownBuilder: _customDropDownExample,
@@ -111,19 +117,26 @@ class _DonateProductScreen extends State<DonateProductScreen> {
                                 textAlignVertical: TextAlignVertical.center,
                                 controller: priceController,
                                 decoration: const InputDecoration(
-                                    border: OutlineInputBorder(), hintText: 'Price', labelText: 'Price', contentPadding: EdgeInsets.only(left: 12)),
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Price',
+                                    labelText: 'Price',
+                                    contentPadding: EdgeInsets.only(left: 12)),
                                 keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'(^\d*\.?\d*)'))
+                                ],
                               ),
                             ),
-                            const Icon(Icons.euro)
+                            const Icon(Icons.attach_money)
                           ],
                         ),
                       ),
                     ),
                     ElevatedButton(
                       onPressed: () => createProductSale(),
-                      style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+                      style: ElevatedButton.styleFrom(
+                          shape: const StadiumBorder()),
                       child: const Text('Submit'),
                     ),
                     const SizedBox(
@@ -139,7 +152,8 @@ class _DonateProductScreen extends State<DonateProductScreen> {
     );
   }
 
-  Widget _customPopupItemBuilderExample2(BuildContext context, Product item, bool isSelected) {
+  Widget _customPopupItemBuilderExample2(
+      BuildContext context, Product item, bool isSelected) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: !isSelected
@@ -183,22 +197,38 @@ class _DonateProductScreen extends State<DonateProductScreen> {
 
   createProductSale() async {
     if (product == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a product for sale')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a product for sale')));
       return;
     }
-    var returnedProductSale = await productSaleProvider.insert(ProductSaleInsertRequest(
-        productId: product!.productId!, price: priceController.text, description: descriptionController.text, locationId: widget.user.locationId!));
+    if (widget.hasPrice && priceController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Please select a price for the product')));
+      return;
+    }
+    var returnedProductSale = await productSaleProvider.insert(
+        ProductSaleInsertRequest(
+            productId: product!.productId!,
+            price: priceController.text,
+            description: descriptionController.text,
+            locationId: widget.user.locationId!));
     if (!mounted) return;
     if (returnedProductSale == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Something went wrong while adding the product on sale')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text('Something went wrong while adding the product on sale')));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully added product on sale')));
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Successfully added product on sale')));
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ProductDetailsScreen(
-                  productSale: ProductSale(product: product!, price: priceController.text, description: descriptionController.text),
+                  productSale: ProductSale(
+                      product: product!,
+                      price: priceController.text,
+                      description: descriptionController.text),
                   user: widget.user,
                 )));
   }

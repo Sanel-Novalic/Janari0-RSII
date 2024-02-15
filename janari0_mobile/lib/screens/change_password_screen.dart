@@ -39,7 +39,8 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
                 question: "Current password",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                labelTextStyle:
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -55,7 +56,8 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
                 question: "New password",
                 horizontalTextPadding: 20,
                 verticalTextPadding: 10,
-                labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                labelTextStyle:
+                    const TextStyle(color: Colors.black, background: null),
                 icon: const Icon(
                   Icons.key,
                   color: Colors.grey,
@@ -79,17 +81,34 @@ class _ChangePasswordScreen extends State<ChangePasswordScreen> {
 
   updateUser() async {
     try {
-      var result = await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
-          EmailAuthProvider.credential(email: FirebaseAuth.instance.currentUser!.email!, password: currentPasswordController.text));
+      var result = await FirebaseAuth.instance.currentUser!
+          .reauthenticateWithCredential(EmailAuthProvider.credential(
+              email: FirebaseAuth.instance.currentUser!.email!,
+              password: currentPasswordController.text));
+
+      if (newPasswordController.text == currentPasswordController.text) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('New password is the same as the previous one')));
+        return;
+      }
+
       await result.user!.updatePassword(newPasswordController.text);
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Successfully updated the password')));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully updated the password')));
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wrong current password')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Wrong current password')));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.code)));
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
   }
 }

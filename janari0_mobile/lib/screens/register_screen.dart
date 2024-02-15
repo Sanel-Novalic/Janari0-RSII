@@ -43,7 +43,11 @@ class _RegisterScreen extends State<RegisterScreen> {
           child: Container(
             height: MediaQuery.of(context).size.height,
             decoration: const BoxDecoration(
-                image: DecorationImage(image: AssetImage('assets/images/welcome_background_better_better.png'), fit: BoxFit.fill, opacity: 1)),
+                image: DecorationImage(
+                    image: AssetImage(
+                        'assets/images/welcome_background_better_better.png'),
+                    fit: BoxFit.fill,
+                    opacity: 1)),
             child: Column(
               children: [
                 const SizedBox(
@@ -66,7 +70,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                     canBeNull: false,
                     horizontalTextPadding: 20,
                     verticalTextPadding: 10,
-                    labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                    labelTextStyle:
+                        const TextStyle(color: Colors.black, background: null),
                     icon: const Icon(
                       Icons.person,
                       color: Colors.grey,
@@ -83,7 +88,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                     canBeNull: false,
                     horizontalTextPadding: 20,
                     verticalTextPadding: 10,
-                    labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                    labelTextStyle:
+                        const TextStyle(color: Colors.black, background: null),
                     icon: const Icon(
                       Icons.email,
                       color: Colors.grey,
@@ -100,7 +106,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                     canBeNull: false,
                     horizontalTextPadding: 20,
                     verticalTextPadding: 10,
-                    labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                    labelTextStyle:
+                        const TextStyle(color: Colors.black, background: null),
                     icon: const Icon(
                       Icons.key,
                       color: Colors.grey,
@@ -117,7 +124,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                     canBeNull: false,
                     horizontalTextPadding: 20,
                     verticalTextPadding: 10,
-                    labelTextStyle: const TextStyle(color: Colors.black, background: null),
+                    labelTextStyle:
+                        const TextStyle(color: Colors.black, background: null),
                     icon: const Icon(
                       Icons.key,
                       color: Colors.grey,
@@ -165,12 +173,25 @@ class _RegisterScreen extends State<RegisterScreen> {
   registerUser() async {
     int id = 1;
     try {
-      LocationCURequest locationInsertRequest = LocationCURequest(latitude: 0, longitude: 0);
-      UserInsertRequest user = UserInsertRequest(email: email.text, username: username.text, phoneNumber: phoneNumber.text, location: locationInsertRequest);
+      LocationCURequest locationInsertRequest =
+          LocationCURequest(latitude: 0, longitude: 0);
+      if (email.text.isEmpty ||
+          username.text.isEmpty ||
+          phoneNumber.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please input all fields')));
+        return;
+      }
+      UserInsertRequest user = UserInsertRequest(
+          email: email.text,
+          username: username.text,
+          phoneNumber: phoneNumber.text,
+          location: locationInsertRequest);
       var returnedUser = await userProvider.insert(user);
       if (!mounted) return;
       if (returnedUser == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('One or more fields are invalid')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('One or more fields are invalid')));
         return;
       }
       id = returnedUser.userId;
@@ -178,21 +199,33 @@ class _RegisterScreen extends State<RegisterScreen> {
         email: email.text,
         password: password.text,
       );
-      var userUpdateRequest = UserUpdateRequest(uid: FirebaseAuth.instance.currentUser!.uid);
-      await userProvider.update(id, userUpdateRequest);
+      var userUpdateRequest =
+          UserUpdateRequest(uid: FirebaseAuth.instance.currentUser!.uid);
+      var updatedUser = await userProvider.update(id, userUpdateRequest);
+      if (updatedUser == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Something went wrong..')));
+        return;
+      }
       if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('The password provided is too weak.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('The password provided is too weak.')));
       } else if (e.code == 'email-already-in-use') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('The account already exists for that email.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('The account already exists for that email.')));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.code)));
       }
       userProvider.delete(id);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('One or more inputs are invalid')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('One or more inputs are invalid')));
     }
   }
 }

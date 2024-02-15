@@ -19,7 +19,7 @@ class LongWhiteButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.only(left: 18.0, right: 18, top: 5),
+        padding: const EdgeInsets.only(left: 8.0, right: 8, top: 5),
         child: ElevatedButton(
             onPressed: () => onPressed(),
             style: ElevatedButton.styleFrom(
@@ -29,9 +29,6 @@ class LongWhiteButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(7))),
             child: Row(
               children: [
-                const SizedBox(
-                  width: 12,
-                ),
                 Text(
                   text,
                   style: const TextStyle(color: Colors.black),
@@ -42,7 +39,7 @@ class LongWhiteButton extends StatelessWidget {
                   style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(
-                  width: 12,
+                  width: 8,
                 ),
                 const Icon(
                   Icons.arrow_forward_ios,

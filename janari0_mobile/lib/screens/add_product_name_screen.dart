@@ -7,7 +7,8 @@ class AddProductName extends StatefulWidget {
   final String? name;
   final String? scannedImage;
   final u.User user;
-  const AddProductName({super.key, this.name, this.scannedImage, required this.user});
+  const AddProductName(
+      {super.key, this.name, this.scannedImage, required this.user});
   @override
   State<StatefulWidget> createState() => _AddProductName();
 }
@@ -54,6 +55,12 @@ class _AddProductName extends State<AddProductName> {
           ),
           ElevatedButton(
             onPressed: () {
+              if (nameController.text.length < 3) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Please enter a name longer than 2 characters')));
+                return;
+              }
               Navigator.push(
                   context,
                   MaterialPageRoute(

@@ -30,7 +30,7 @@ class CustomCarousel extends StatelessWidget {
         Container(
             height: 180,
             width: double.infinity,
-            padding: const EdgeInsets.only(left: 5),
+            padding: const EdgeInsets.only(left: 5, right: 5),
             child: ListView.separated(
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
@@ -75,14 +75,14 @@ class CustomCarousel extends StatelessWidget {
                           width: 150,
                           child: Text(
                               productsSale.elementAt(index).product!.name ??
-                                  'Based')),
-                      const SizedBox(height: 23),
+                                  'Unnamed')),
+                      const SizedBox(height: 15),
                       SizedBox(
                           width: 150,
                           child: Text(
                               productsSale.elementAt(index).price == "Free"
                                   ? productsSale.elementAt(index).price
-                                  : "€ ${productsSale.elementAt(index).price}"))
+                                  : "\$${productsSale.elementAt(index).price}"))
                     ],
                   ),
                 ),
