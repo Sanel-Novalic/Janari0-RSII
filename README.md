@@ -9,7 +9,7 @@ docker compose up --build
 # Setup Desktop app
 Start the desktop application with this command:
 ```
-flutter run --dart-define=baseUrl=https://localhost:7158/
+flutter run -d "windows" --dart-define=baseUrl=http://localhost:7158/
 ```
 
 All test users have the same password: test123
@@ -17,8 +17,6 @@ All test users have the same password: test123
 Test users:
 
 admin@gmail.com
-
-mobile@gmail.com (user with the food, seller)
 
 mobile2@gmail.com (user that buys the food)
 
@@ -35,7 +33,7 @@ for example:
             "request": "launch",
             "type": "dart",
             "args":[
-                "--dart-define", "baseUrl=https://192.168.50.132:7158/"
+                "--dart-define", "baseUrl=http://<your-ip-address>:7158/"
             ]
         },
 ```
