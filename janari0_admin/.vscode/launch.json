@@ -10,7 +10,7 @@
             "type": "dart",
             "flutterMode": "profile",
             "args":[
-                "--dart-define", "baseUrl=https://localhost:7158/"
+                "--dart-define", "baseUrl=http://localhost:7158/"
             ]
         },
         {
@@ -19,7 +19,7 @@
             "type": "dart",
             "flutterMode": "release",
             "args":[
-                "--dart-define", "baseUrl=https://localhost:7158/"
+                "--dart-define", "baseUrl=http://localhost:7158/"
             ]
         },
         {
@@ -27,7 +27,7 @@
             "request": "launch",
             "type": "dart",
             "args":[
-                "--dart-define", "baseUrl=https://localhost:7158/"
+                "--dart-define", "baseUrl=http://localhost:7158/"
             ]
         }
     ]

@@ -1,17 +1,18 @@
-﻿using Janari0.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Janari0.Services.Requests
+namespace Janari0.Model.Requests
 {
     public class UserInsertRequest
     {
         public string Uid { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Username { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Email { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string PhoneNumber { get; set; }
         public Location Location { get; set; }
     }

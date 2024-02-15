@@ -1,39 +1,38 @@
 ﻿using AutoMapper;
+using Janari0.Model.Requests;
 using Janari0.Model.SearchObjects;
 using Janari0.Services.Context;
 using Janari0.Services.Database;
-using Janari0.Services.HelperMethods;
 using Janari0.Services.IServices;
-using Janari0.Services.Requests;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
-using System.Collections.Generic;
 
 namespace Janari0.Services.Services
 {
-    public class ProductsSaleService : BaseCRUDService<Model.ProductsSale, Database.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleInsertRequest>, IProductsSaleService
+    public class ProductsSaleService
+        : BaseCRUDService<Model.ProductsSale, Database.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleUpdateRequest>,
+            IProductsSaleService
     {
-        public ProductsSaleService(Janari0Context context, IMapper mapper) : base(context, mapper) {}
-       
-        public IEnumerable<Model.ProductsSale> GetCarouselData(ProductsSaleSearchObject? search = null)
+        public ProductsSaleService(Janari0Context context, IMapper mapper)
+            : base(context, mapper) { }
+
+        public async Task<IEnumerable<Model.ProductsSale>> GetCarouselData(ProductsSaleSearchObject? search = null)
         {
             ProductsService productsService = new(Context, Mapper);
-            var list = base.Get(search);
+            var list = await base.Get(search);
             List<Model.ProductsSale> productsSale = new();
             if (search?.Carousel == "Nearby")
             {
                 foreach (var productSale in list)
                 {
                     LocationService locationService = new(Context, Mapper);
-                    var location = locationService.GetById(productSale.LocationId);
+                    var location = await locationService.GetById(productSale.LocationId);
                     productSale.Location = location;
                     var distance = getDistance(search.Latitude, search.Longitude, productSale.Location.Latitude, productSale.Location.Longitude);
-                    Console.WriteLine(distance);
                     if (distance < 5000)
                     {
-                        var product = productsService.GetById(productSale.ProductId);
+                        var product = await productsService.GetById(productSale.ProductId);
                         productSale.Product = product;
                         productsSale.Add(productSale);
                     }
@@ -45,7 +44,7 @@ namespace Janari0.Services.Services
                 {
                     if (productSale.Price == "Free")
                     {
-                        var product = productsService.GetById(productSale.ProductId);
+                        var product = await productsService.GetById(productSale.ProductId);
                         productSale.Product = product;
                         productsSale.Add(productSale);
                     }
@@ -53,6 +52,7 @@ namespace Janari0.Services.Services
             }
             return productsSale;
         }
+
         public double getDistance(double longitude, double latitude, double otherLongitude, double otherLatitude)
         {
             var d1 = latitude * (Math.PI / 180.0);
@@ -64,62 +64,65 @@ namespace Janari0.Services.Services
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
 
-        public override Model.ProductsSale? GetById(int id)
+        public override async Task<Model.ProductsSale?> GetById(int id)
         {
             var set = Context.Set<ProductsSale>();
 
-            var entity = set.Find(id);
+            var entity = await set.FindAsync(id);
 
-            if(entity == null) { 
-                return null; 
+            if (entity == null)
+            {
+                return null;
             }
 
             var productsService = new ProductsService(Context, Mapper);
 
-            var product = productsService.GetById(entity.ProductId);
+            var product = await productsService.GetById(entity.ProductId);
 
             entity.Product = Mapper.Map<Product>(product);
 
             return Mapper.Map<Model.ProductsSale>(entity);
         }
-        public override IEnumerable<Model.ProductsSale> Get(ProductsSaleSearchObject? search = null)
-        {
-            var list = base.Get(search);
 
-            ProductsService productService = new(Context,Mapper);
-            foreach(var item in list)
+        public override async Task<IEnumerable<Model.ProductsSale>> Get(ProductsSaleSearchObject? search = null)
+        {
+            var list = await base.Get(search);
+
+            ProductsService productService = new(Context, Mapper);
+            foreach (var item in list)
             {
-                var product = productService.GetById(item.ProductId);
+                var product = await productService.GetById(item.ProductId);
                 item.Product = product;
             }
             return list;
         }
-        public override void BeforeDelete(Database.ProductsSale dbentity)
+
+        public override async Task BeforeDelete(Database.ProductsSale dbentity)
         {
             BuyersService buyersService = new(Context, Mapper);
-            ProductsSaleService productsSaleService = new(Context, Mapper);
 
             foreach (var item in dbentity.Buyers)
             {
-                buyersService.Delete(item.BuyerId);
+                await buyersService.Delete(item.BuyerId);
             }
         }
-        static MLContext mlContext = null;
-        static ITransformer model = null;
 
-        public List<Model.ProductsSale> Recommend(int id)
+        static MLContext? mlContext = null;
+        static ITransformer? model = null;
+
+        public async Task<List<Model.ProductsSale>> Recommend(int id)
         {
-
             var allItems = Context.ProductsSales.AsQueryable();
 
             ITransformer trainedModel;
             try
             {
-                trainedModel = ModelTrainer(id);
-            } 
-            catch(Exception e)
+                trainedModel = await ModelTrainer(id);
+            }
+            catch (Exception e)
             {
-                return Get().ToList();
+                var get = await Get();
+                return get.ToList();
             }
 
             var predictionResult = new List<Tuple<Database.ProductsSale, float>>();
@@ -127,11 +130,7 @@ namespace Janari0.Services.Services
             {
                 var predictionEngine = mlContext.Model.CreatePredictionEngine<ProductEntry, Copurchase_prediction>(trainedModel);
 
-                var prediction = predictionEngine.Predict(new ProductEntry()
-                {
-                    ProductSaleID = (uint)id,
-                    CoPurchaseProductSaleID = (uint)item.ProductId
-                });
+                var prediction = predictionEngine.Predict(new ProductEntry() { ProductSaleID = (uint)id, CoPurchaseProductSaleID = (uint)item.ProductId });
 
                 predictionResult.Add(new Tuple<Database.ProductsSale, float>(item, prediction.Score));
             }
@@ -143,23 +142,24 @@ namespace Janari0.Services.Services
             {
                 foreach (var item in finalResult)
                 {
-                    var product = productService.GetById(item.ProductId);
+                    var product = await productService.GetById(item.ProductId);
                     item.Product = Mapper.Map<Product>(product);
                 }
             }
             return Mapper.Map<List<Model.ProductsSale>>(finalResult);
         }
 
-        public ITransformer ModelTrainer(int id)
+        public async Task<ITransformer> ModelTrainer(int id)
         {
             if (mlContext == null)
             {
                 mlContext = new MLContext();
 
                 OrdersService ordersService = new(Context, Mapper);
-                OrderSearchObject orderSearchObject = new();
-                orderSearchObject.UserId = id;
-                var tmp = ordersService.Get(orderSearchObject).ToList();
+                OrderSearchObject orderSearchObject = new() { UserId = id };
+
+                var tmpTask = await ordersService.Get(orderSearchObject);
+                var tmp = tmpTask.ToList();
 
                 var data = new List<ProductEntry>();
 
@@ -175,14 +175,8 @@ namespace Janari0.Services.Services
 
                             foreach (var y in relatedItems)
                             {
-                                data.Add(new ProductEntry()
-                                {
-                                    ProductSaleID = (uint)x,
-                                    CoPurchaseProductSaleID = (uint)y.ProductSaleId,
-
-                                });
+                                data.Add(new ProductEntry() { ProductSaleID = (uint)x, CoPurchaseProductSaleID = (uint)y.ProductSaleId, });
                             }
-
                         });
                     }
                 }
@@ -196,7 +190,6 @@ namespace Janari0.Services.Services
                 options.LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass;
                 options.Alpha = 0.01;
                 options.Lambda = 0.025;
-                // For better results use the following parameters
                 options.NumberOfIterations = 100;
                 options.C = 0.00001;
 
@@ -208,6 +201,7 @@ namespace Janari0.Services.Services
             return model;
         }
     }
+
     public class Copurchase_prediction
     {
         public float Score { get; set; }
@@ -217,6 +211,7 @@ namespace Janari0.Services.Services
     {
         [KeyType(count: 2000)]
         public uint ProductSaleID { get; set; }
+
         [KeyType(count: 2000)]
         public uint CoPurchaseProductSaleID { get; set; }
         public float Label { get; set; }

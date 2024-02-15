@@ -6,8 +6,7 @@ namespace Janari0.Controllers
 {
     public class SellersController : BaseCRUDController<Model.Seller, SellerSearchObject, SellerInsertRequest, SellerUpdateRequest>
     {
-        public SellersController(ISellersService sellerService) : base(sellerService)
-        {
-        }
+        public SellersController(ISellersService sellerService)
+            : base(sellerService) { }
     }
 }

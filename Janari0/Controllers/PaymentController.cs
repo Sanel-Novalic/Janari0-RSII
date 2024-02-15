@@ -8,23 +8,22 @@ namespace Janari0.Controllers
     public class PaymentController : ControllerBase
     {
         public IPaymentService PaymentService { get; set; }
+
         public PaymentController(IPaymentService paymentService)
         {
             PaymentService = paymentService;
         }
 
         [HttpPost("BeginTransaction")]
-        public Model.Payment BeginTransaction([FromBody]Model.Payment payment)
+        public async Task<Model.Payment> BeginTransaction([FromBody] Model.Payment payment)
         {
-            var result = PaymentService.BeginTransaction(payment);
-            return result;
-        }
-        [HttpPost("SaveTransaction")]
-        public Model.Order SaveTransaction(int orderId,decimal loyaltyPoints)
-        {
-            var result = PaymentService.SaveTransaction(orderId,loyaltyPoints);
-            return result;
+            return await PaymentService.BeginTransaction(payment);
         }
 
+        [HttpPost("SaveTransaction")]
+        public async Task<Model.Order?> SaveTransaction(int orderId, decimal loyaltyPoints)
+        {
+            return await PaymentService.SaveTransaction(orderId, loyaltyPoints);
+        }
     }
 }

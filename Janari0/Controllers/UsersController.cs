@@ -1,6 +1,7 @@
-﻿using Janari0.Model.SearchObjects;
+﻿using Janari0.Model.Requests;
+using Janari0.Model.SearchObjects;
 using Janari0.Services.IServices;
-using Janari0.Services.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Janari0.Controllers
@@ -8,14 +9,18 @@ namespace Janari0.Controllers
     public class UsersController : BaseCRUDController<Model.User, UserSearchObject, UserInsertRequest, UserUpdateRequest>
     {
         public IUsersService UsersService { get; set; }
-        public UsersController(IUsersService service): base(service)
+
+        public UsersController(IUsersService service)
+            : base(service)
         {
             UsersService = service;
         }
+
+        [AllowAnonymous]
         [HttpGet("Login")]
-        public Model.User? Login(string username, string password)
+        public async Task<Model.User?> Login(string email, string password)
         {
-            return UsersService.Login(username, password);
+            return await UsersService.Login(email, password);
         }
     }
 }

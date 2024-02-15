@@ -1,96 +1,91 @@
 ﻿using AutoMapper;
+using EasyNetQ;
 using Janari0.Model.Requests;
 using Janari0.Model.SearchObjects;
 using Janari0.Services.Context;
 using Janari0.Services.Database;
-using Janari0.Services.Exceptions;
 using Janari0.Services.IServices;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Janari0.Services.Services
 {
     public class OrdersService : BaseCRUDService<Model.Order, Database.Order, OrderSearchObject, OrderInsertRequest, OrderUpdateRequest>, IOrdersService
     {
-        public OrdersService(Janari0Context context, IMapper mapper) : base(context, mapper)
+        public OrdersService(Janari0Context context, IMapper mapper)
+            : base(context, mapper) { }
+
+        public override async Task<IEnumerable<Model.Order>> Get(OrderSearchObject? search = null)
         {
-        }
-        public virtual IEnumerable<Model.Order> Get(OrderSearchObject? search = null)
-        {
-            var list = base.Get(search);
+            var list = await base.Get(search);
             var result = new List<Model.Order>();
             BuyersService buyersService = new(Context, Mapper);
             OrderItemsService orderItemsService = new(Context, Mapper);
             BuyerSearchObject buyerSearchObject = new();
-            buyerSearchObject.UserId = search.UserId;
-            var buyers = buyersService.Get(buyerSearchObject);
-            foreach(var item in list)
+            buyerSearchObject.UserId = search!.UserId;
+            var buyers = await buyersService.Get(buyerSearchObject);
+            foreach (var item in list)
             {
                 if (buyers.Any(x => x.BuyerId == item.BuyerId))
                 {
                     result.Add(item);
                 }
             }
-            foreach(var item in result)
+            foreach (var item in result)
             {
                 OrderItemSearchObject orderItemSearchObject = new();
-                orderItemSearchObject.OrderId = item.OrderId; 
-                var orderItems = orderItemsService.Get(orderItemSearchObject);
+                orderItemSearchObject.OrderId = item.OrderId;
+                var orderItems = await orderItemsService.Get(orderItemSearchObject);
                 item.OrderItems = orderItems.ToList();
             }
             return result;
         }
-        public override void BeforeDelete(Order dbentity)
-        {
 
+        public override async Task BeforeDelete(Order dbentity)
+        {
             var orderService = new OrderItemsService(Context, Mapper);
             var orderItemsService = new OrderItemsService(Context, Mapper);
             var outputService = new OutputService(Context, Mapper);
             var outputItemsService = new OutputItemsService(Context, Mapper);
-            OutputSearchObject searchOutput = new OutputSearchObject() { OrderId = dbentity.OrderId};
-            var outputs = outputService.Get(searchOutput);
+            OutputSearchObject searchOutput = new OutputSearchObject() { OrderId = dbentity.OrderId };
+            var outputs = await outputService.Get(searchOutput);
 
             if (outputs.Count() > 0)
             {
                 OutputItemSearchObject searchOutputItem = new OutputItemSearchObject() { OutputId = outputs.FirstOrDefault().OutputId };
-                var outputItems = outputItemsService.Get(searchOutputItem);
+                var outputItems = await outputItemsService.Get(searchOutputItem);
                 foreach (var item in outputItems)
                 {
-                    outputItemsService.Delete(item.OutputItemId);
+                    await outputItemsService.Delete(item.OutputItemId);
                 }
 
-                outputs = outputService.Get(searchOutput);
+                outputs = await outputService.Get(searchOutput);
 
                 foreach (var item in outputs)
                 {
                     if (item.OutputItems.Count == 0)
-                        outputService.Delete(item.OutputId);
+                        await outputService.Delete(item.OutputId);
                 }
             }
             var orderItemsSearch = new OrderItemSearchObject() { OrderId = dbentity.OrderId };
-            var orderItems = orderItemsService.Get(orderItemsSearch);
+            var orderItems = await orderItemsService.Get(orderItemsSearch);
 
             foreach (var orderItem in orderItems)
             {
-                orderService.Delete(orderItem.OrderItemId);
+                await orderService.Delete(orderItem.OrderItemId);
             }
 
-            base.BeforeDelete(dbentity);
+            await base.BeforeDelete(dbentity);
         }
-        public override void BeforeInsert(OrderInsertRequest insert, Order dbentity)
+
+        public override async Task BeforeInsert(OrderInsertRequest insert, Order dbentity)
         {
             dbentity.Date = DateTime.Now;
             dbentity.OrderNumber = (Context.Orders.Count() + 1).ToString();
-            base.BeforeInsert(insert, dbentity);
+            await base.BeforeInsert(insert, dbentity);
         }
-        public override Model.Order Insert(OrderInsertRequest insert)
+
+        public override async Task<Model.Order?> Insert(OrderInsertRequest insert)
         {
-            var result = base.Insert(insert);
+            var result = await base.Insert(insert);
 
             OrderItemsService orderItemsService = new OrderItemsService(Context, Mapper);
 
@@ -102,10 +97,31 @@ namespace Janari0.Services.Services
                     dbitem.OrderId = result.OrderId;
                     dbitem.ProductSaleId = item.ProductSaleId;
 
-                    orderItemsService.Insert(dbitem);
+                    await orderItemsService.Insert(dbitem);
                 }
             }
 
+            if (result != null)
+            {
+                BuyersService buyersService = new BuyersService(Context, Mapper);
+
+                var buyer = await buyersService.GetById(insert.BuyerId);
+
+                UsersService usersService = new UsersService(Context, Mapper);
+
+                var user = await usersService.GetById(buyer.UserId);
+
+                var emailMessage = new Model.EmailMessage
+                {
+                    To = user.Email,
+                    TrackNumber = result.OrderId.ToString(),
+                    Date = result.Date.ToString()
+                };
+
+                EmailProviderService emailProviderService = new EmailProviderService();
+
+                await emailProviderService.SendMessage(emailMessage, "email");
+            }
             return result;
         }
     }

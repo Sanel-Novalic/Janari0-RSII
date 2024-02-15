@@ -1,6 +1,22 @@
 version: '3'
 services:
-#mssql docker
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "password"
+    expose:
+      - 5672
+      - 15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - janari0net2023
+
   janari0-sql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     restart: unless-stopped
@@ -15,6 +31,27 @@ services:
       - 1433
     networks:
       - janari0net2023
+  
+  email-provider:
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Janari0.EmailProvider/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VIRTUALHOST=/
+      - OUTLOOK_MAIL=janari0service@outlook.com
+      - ENCRYPTED_API_KEY=58cMEkORy1kZBGheeCEHx5ieoAgcDxO7OQm6HYp7sZ0HdYoTefXmTGQCKc35dEmTf6Gi3BG7PTqIUqsHx7O/GSbvwkJjlAAvgvyl6j0N2Xg=
+      - ENCRYPTION_KEY=73Gh30kxP4j7W2nX5Rf8T3vZ20QqM1uY
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - janari0net2023
+    ports:
+      - 7101:80
 
   janari0-api:
     restart: unless-stopped
@@ -24,6 +61,10 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=janari0-sql,1433;Database=Janari0;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VIRTUALHOST=/
     ports:
       - 7158:7158
     networks:
@@ -35,4 +76,4 @@ services:
       
 networks:
   janari0net2023:
-    driver: bridge  
+    driver: bridge

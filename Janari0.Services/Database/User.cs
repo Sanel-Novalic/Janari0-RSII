@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Janari0.Services.Database;
+﻿namespace Janari0.Services.Database;
 
 public partial class User
 {
@@ -9,7 +6,7 @@ public partial class User
 
     public string? PhoneNumber { get; set; }
 
-    public string? Role { get; set; }
+    public Role? Role { get; set; }
 
     public string Email { get; set; } = null!;
 

@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Braintree;
 using Janari0.Model;
+using Janari0.Model.Requests;
 using Janari0.Services.Context;
 using Janari0.Services.Exceptions;
 using Janari0.Services.IServices;
 using Janari0.Services.Properties;
-using Janari0.Services.Requests;
 
 namespace Janari0.Services.Services
 {
@@ -13,15 +13,17 @@ namespace Janari0.Services.Services
     {
         public Janari0Context Context;
         public IMapper Mapper;
+
         public PaymentService(Janari0Context context, IMapper mapper)
         {
             Context = context;
             Mapper = mapper;
         }
-        public Payment BeginTransaction(Payment payment)
+
+        public async Task<Payment> BeginTransaction(Payment payment)
         {
             ProductsSaleService productsSaleService = new ProductsSaleService(Context, Mapper);
-            var product = productsSaleService.GetById(payment.ProductSaleId);
+            var product = await productsSaleService.GetById(payment.ProductSaleId);
 
             var gateway = new BraintreeGateway()
             {
@@ -42,12 +44,12 @@ namespace Janari0.Services.Services
                     SubmitForSettlement = true,
                     PayPal = new TransactionOptionsPayPalRequest()
                     {
-                        Description = "This is your confirmation of payment to the Janari0 app for product: " + product.Product.Name + " from seller: " + product.Product.User.Username,
+                        Description =
+                            "This is your confirmation of payment to the Janari0 app for product: " + product.Product.Name + " from seller: " + product.Product.User.Username,
                         PayeeEmail = product.Product.User.Email,
                     }
                 },
                 TaxAmount = Convert.ToDecimal(0.5),
-
             };
 
             var result = gateway.Transaction.Sale(request);
@@ -59,10 +61,16 @@ namespace Janari0.Services.Services
             }
             else if (result.Transaction != null)
             {
-
-                throw new PaymentException(" Transaction Status: " + result.Transaction.Status + "\n" +
-                                       " Code: " + result.Transaction.ProcessorResponseCode + "\n" +
-                                       " Text: " + result.Transaction.ProcessorResponseText);
+                throw new PaymentException(
+                    " Transaction Status: "
+                        + result.Transaction.Status
+                        + "\n"
+                        + " Code: "
+                        + result.Transaction.ProcessorResponseCode
+                        + "\n"
+                        + " Text: "
+                        + result.Transaction.ProcessorResponseText
+                );
             }
             else
             {
@@ -72,18 +80,17 @@ namespace Janari0.Services.Services
             return payment;
         }
 
-        public Order SaveTransaction(int orderId, decimal loyaltyPoints)
+        public async Task<Order?> SaveTransaction(int orderId, decimal loyaltyPoints)
         {
-            // Save transaction in database
             OrdersService orderService = new(Context, Mapper);
             OutputService outputService = new(Context, Mapper);
             OutputItemsService outputItemsService = new(Context, Mapper);
-            var order = orderService.GetById(orderId);
+            var order = await orderService.GetById(orderId);
             if (order == null)
             {
                 return null;
             }
-            Output insertedOutput = null;
+            Output? insertedOutput = null;
 
             OutputUpsertRequest output = new OutputUpsertRequest()
             {
@@ -95,24 +102,23 @@ namespace Janari0.Services.Services
                 OrderId = order.OrderId,
                 ReceiptNumber = order.OrderNumber + "/" + order.Date.Year.ToString(),
             };
-            insertedOutput = outputService.Insert(output);
+            insertedOutput = await outputService.Insert(output);
             if (insertedOutput != null)
             {
                 foreach (var item in order.OrderItems)
                 {
-                    OutputItemUpsertRequest outputitem = new()
-                    {
-                        OutputId = insertedOutput.OutputId,
-                        ProductId = item.ProductSaleId,
-                        Price = Convert.ToDecimal(item.ProductSale.Price),
-                        Discount = loyaltyPoints,
-                    };
-                    outputItemsService.Insert(outputitem);
-
+                    OutputItemUpsertRequest outputitem =
+                        new()
+                        {
+                            OutputId = insertedOutput.OutputId,
+                            ProductId = item.ProductSaleId,
+                            Price = Convert.ToDecimal(item.ProductSale.Price),
+                            Discount = loyaltyPoints,
+                        };
+                    await outputItemsService.Insert(outputitem);
                 }
             }
             return order;
         }
-
     }
 }

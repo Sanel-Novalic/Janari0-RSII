@@ -7,8 +7,6 @@ namespace Janari0.Controllers
     public class BuyersController : BaseCRUDController<Model.Buyer, BuyerSearchObject, BuyerInsertRequest, BuyerUpdateRequest>
     {
         public BuyersController(IBuyersService buyersService)
-            : base(buyersService)
-        {
-        }
+            : base(buyersService) { }
     }
 }

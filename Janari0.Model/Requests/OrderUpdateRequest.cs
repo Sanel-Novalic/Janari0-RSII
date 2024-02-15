@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-
-namespace Janari0.Model.Requests
+﻿namespace Janari0.Model.Requests
 {
     public class OrderUpdateRequest
     {

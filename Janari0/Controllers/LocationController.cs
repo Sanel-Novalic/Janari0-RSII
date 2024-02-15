@@ -6,8 +6,7 @@ namespace Janari0.Controllers
 {
     public class LocationController : BaseCRUDController<Model.Location, BaseSearchObject, LocationInsertRequest, LocationUpdateRequest>
     {
-        public LocationController(ILocationService service) : base(service)
-        {
-        }
+        public LocationController(ILocationService service)
+            : base(service) { }
     }
 }

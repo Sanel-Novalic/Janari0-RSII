@@ -1,10 +1,10 @@
-﻿using Janari0.Model.SearchObjects;
-using Janari0.Services.Requests;
+﻿using Janari0.Model.Requests;
+using Janari0.Model.SearchObjects;
 
 namespace Janari0.Services.IServices
 {
     public interface IUsersService : ICRUDService<Model.User, UserSearchObject, UserInsertRequest, UserUpdateRequest>
     {
-        Model.User? Login(string username, string password);
+        Task<Model.User?> Login(string email, string password);
     }
 }

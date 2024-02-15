@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using Janari0.Model.Requests;
-using Janari0.Services.Requests;
 
 namespace Janari0.Services
 {
     public class MappingProfile : Profile
     {
-        public MappingProfile() {
+        public MappingProfile()
+        {
             CreateMap<Database.User, Model.User>().ReverseMap();
             CreateMap<Database.Product, Model.Product>().ReverseMap();
-            CreateMap<Database.ProductsSale, Model.ProductsSale>();
+            CreateMap<Database.ProductsSale, Model.ProductsSale>().ReverseMap();
             CreateMap<Database.Photo, Model.Photo>().ReverseMap();
             CreateMap<Database.Location, Model.Location>().ReverseMap();
             CreateMap<Database.Seller, Model.Seller>();
@@ -39,40 +39,47 @@ namespace Janari0.Services
                     opts.Condition((src, dest, srcMember) => srcMember != null);
                 });
             CreateMap<ProductsSaleInsertRequest, Database.ProductsSale>();
-            CreateMap<OutputUpsertRequest, Database.Output>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
-            CreateMap<OutputUpdateRequest, Database.Output>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
-            CreateMap<OutputItemUpsertRequest, Database.OutputItem>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
- 
+            CreateMap<ProductsSaleUpdateRequest, Database.ProductsSale>();
+            CreateMap<OutputUpsertRequest, Database.Output>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
+            CreateMap<OutputUpdateRequest, Database.Output>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
+            CreateMap<OutputItemUpsertRequest, Database.OutputItem>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
+
             CreateMap<OrderInsertRequest, Database.Order>();
-            CreateMap<OrderUpdateRequest, Database.Order>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
+            CreateMap<OrderUpdateRequest, Database.Order>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
             CreateMap<OrderItemInsertRequest, Database.OrderItem>();
-            CreateMap<OrderItemUpdateRequest, Database.OrderItem>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
+            CreateMap<OrderItemUpdateRequest, Database.OrderItem>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
             CreateMap<SellerInsertRequest, Database.Seller>();
-            CreateMap<SellerUpdateRequest, Database.Seller>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
+            CreateMap<SellerUpdateRequest, Database.Seller>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
             CreateMap<BuyerInsertRequest, Database.Buyer>();
-            CreateMap<BuyerUpdateRequest, Database.Buyer>().ForAllMembers(opts =>
-            {
-                opts.Condition((src, dest, srcMember) => srcMember != null);
-            });
+            CreateMap<BuyerUpdateRequest, Database.Buyer>()
+                .ForAllMembers(opts =>
+                {
+                    opts.Condition((src, dest, srcMember) => srcMember != null);
+                });
         }
-        
     }
 }

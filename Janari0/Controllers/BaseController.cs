@@ -1,12 +1,16 @@
 ﻿using Janari0.Model.SearchObjects;
 using Janari0.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Janari0.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class BaseController<T, TSearch> : ControllerBase where T : class where TSearch : BaseSearchObject
+    [Authorize]
+    public class BaseController<T, TSearch> : ControllerBase
+        where T : class
+        where TSearch : BaseSearchObject
     {
         public IService<T, TSearch> Service { get; set; }
 
@@ -14,15 +18,17 @@ namespace Janari0.Controllers
         {
             Service = service;
         }
+
         [HttpGet]
-        public virtual IEnumerable<T> Get([FromQuery] TSearch search = null)
+        public async Task<IEnumerable<T?>> Get([FromQuery] TSearch? search = null)
         {
-            return Service.Get(search);
+            return await Service.Get(search);
         }
+
         [HttpGet("{id}")]
-        public virtual T GetById(int id)
+        public virtual async Task<T?> GetById(int id)
         {
-            return Service.GetById(id);
+            return await Service.GetById(id);
         }
     }
 }

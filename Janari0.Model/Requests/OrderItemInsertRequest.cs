@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Janari0.Model.Requests
 {
@@ -9,6 +6,7 @@ namespace Janari0.Model.Requests
     {
         [Required(AllowEmptyStrings = false)]
         public int OrderId { get; set; }
+
         [Required(AllowEmptyStrings = false)]
         public int ProductSaleId { get; set; }
     }

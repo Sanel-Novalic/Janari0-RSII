@@ -6,8 +6,7 @@ namespace Janari0.Controllers
 {
     public class OrdersController : BaseCRUDController<Model.Order, OrderSearchObject, OrderInsertRequest, OrderUpdateRequest>
     {
-        public OrdersController(IOrdersService orderService) : base(orderService)
-        {
-        }
+        public OrdersController(IOrdersService orderService)
+            : base(orderService) { }
     }
 }

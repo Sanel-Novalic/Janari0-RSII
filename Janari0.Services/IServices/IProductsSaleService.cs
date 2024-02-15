@@ -1,13 +1,13 @@
-﻿using Janari0.Model.SearchObjects;
-using Janari0.Services.Requests;
+﻿using Janari0.Model.Requests;
+using Janari0.Model.SearchObjects;
 using Microsoft.ML;
 
 namespace Janari0.Services.IServices
 {
-    public interface IProductsSaleService : ICRUDService<Model.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleInsertRequest>
+    public interface IProductsSaleService : ICRUDService<Model.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleUpdateRequest>
     {
-        IEnumerable<Model.ProductsSale> GetCarouselData(ProductsSaleSearchObject? search = null);
-        List<Model.ProductsSale> Recommend(int id);
-        ITransformer ModelTrainer(int id);
+        Task<IEnumerable<Model.ProductsSale>> GetCarouselData(ProductsSaleSearchObject? search = null);
+        Task<List<Model.ProductsSale>> Recommend(int id);
+        Task<ITransformer> ModelTrainer(int id);
     }
 }

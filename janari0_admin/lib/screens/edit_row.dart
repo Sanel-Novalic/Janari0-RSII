@@ -60,8 +60,12 @@ class _EditRow extends State<EditRow> {
           // Update user
           onPressed: () async {
             UserUpdateRequest userUpdateRequest = UserUpdateRequest(
-                username: usernameController.text == row.username ? null : usernameController.text,
-                phoneNumber: phoneNumberController.text == row.phoneNumber ? null : phoneNumberController.text);
+                username: usernameController.text == row.username
+                    ? null
+                    : usernameController.text,
+                phoneNumber: phoneNumberController.text == row.phoneNumber
+                    ? null
+                    : phoneNumberController.text);
             try {
               await userProvider.update(row.userId, userUpdateRequest);
 
@@ -122,7 +126,8 @@ class _EditRow extends State<EditRow> {
               if (!mounted) return;
               Navigator.pop(context, 'Successfully updated the product row');
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(e.toString())));
             }
           },
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
@@ -151,29 +156,35 @@ class _EditRow extends State<EditRow> {
   }
 
   Widget productSaleData(ProductSale row) {
-    TextEditingController descriptionContoller = TextEditingController();
+    TextEditingController descriptionController = TextEditingController();
     controller.text = row.price;
-    descriptionContoller.text = row.description!;
+    descriptionController.text = row.description!;
     return Scaffold(
       body: Column(children: [
         const SizedBox(
           height: 70,
         ),
         CustomField(controller: controller, question: "Price"),
-        CustomField(controller: descriptionContoller, question: "Description"),
+        CustomField(controller: descriptionController, question: "Description"),
         const SizedBox(
           height: 60,
         ),
         ElevatedButton(
           onPressed: () async {
             row.price = controller.text;
-            row.description = descriptionContoller.text;
+            row.description = descriptionController.text;
+            var updateRow = {
+              "price": controller.text,
+              "description": descriptionController.text
+            };
             try {
-              await productSaleProvider.update(row.productSaleId!, row);
+              await productSaleProvider.update(row.productSaleId!, updateRow);
               if (!mounted) return;
-              Navigator.pop(context, 'Successfully updated the productSale row');
+              Navigator.pop(
+                  context, 'Successfully updated the productSale row');
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(e.toString())));
             }
           },
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
@@ -224,7 +235,8 @@ class _EditRow extends State<EditRow> {
               if (!mounted) return;
               Navigator.pop(context, 'Successfully updated the order row');
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(e.toString())));
             }
           },
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
@@ -279,7 +291,8 @@ class _EditRow extends State<EditRow> {
               if (!mounted) return;
               Navigator.pop(context, 'Successfully updated the output row');
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(e.toString())));
             }
           },
           style: ElevatedButton.styleFrom(shape: const StadiumBorder()),

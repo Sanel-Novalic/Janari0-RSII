@@ -38,7 +38,8 @@ List<Output> outputs = [];
 
 class _DashboardScreen extends State<DashboardScreen> {
   List<Widget> widgets = [];
-  final StreamController<List<User>> _dataController = StreamController<List<User>>();
+  final StreamController<List<User>> _dataController =
+      StreamController<List<User>>();
   Stream<List<User>> get dataStream => _dataController.stream;
   @override
   void initState() {
@@ -80,7 +81,8 @@ class _DashboardScreen extends State<DashboardScreen> {
     );
   }
 
-  Widget table(String headline, Text col1, Text col2, Text col3, DataTableSource source) {
+  Widget table(String headline, Text col1, Text col2, Text col3,
+      DataTableSource source) {
     return Container(
       padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
@@ -125,7 +127,8 @@ class _DashboardScreen extends State<DashboardScreen> {
 
   void update({String? message}) {
     if (message != '' && message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
     _refreshData();
   }
@@ -133,15 +136,24 @@ class _DashboardScreen extends State<DashboardScreen> {
   void createWidgets() {
     widgets = []; // Clear existing widgets
 
-    widgets.add(table("Users", const Text("UserID"), const Text("Username"), const Text("Email"), UsersData(update: update)));
+    widgets.add(table("Users", const Text("UserID"), const Text("Username"),
+        const Text("Email"), UsersData(update: update)));
 
-    widgets.add(table("Products", const Text("ProductID"), const Text("Name"), const Text("Expiration Date"), ProductsData(update: update)));
+    widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
+        const Text("Expiration Date"), ProductsData(update: update)));
 
-    widgets.add(table("ProductsSale", const Text("ProductSaleID"), const Text("Price"), const Text("Description"), ProductsSaleData(update: update)));
+    widgets.add(table(
+        "ProductsSale",
+        const Text("ProductSaleID"),
+        const Text("Price"),
+        const Text("Description"),
+        ProductsSaleData(update: update)));
 
-    widgets.add(table("Orders", const Text("OrderID"), const Text("Price"), const Text("Status"), OrderData(update: update)));
+    widgets.add(table("Orders", const Text("OrderID"), const Text("Price"),
+        const Text("Status"), OrderData(update: update)));
 
-    widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"), const Text("Concluded"), OutputData(update: update)));
+    widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
+        const Text("Concluded"), OutputData(update: update)));
   }
 }
 
@@ -209,9 +221,12 @@ class UsersData extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     final user = users[index];
-    return DataRow.byIndex(
-        index: index,
-        cells: [DataCell(Text(user.userId.toString())), DataCell(Text(user.username)), DataCell(Text(user.email)), DataCell(actions(user, update))]);
+    return DataRow.byIndex(index: index, cells: [
+      DataCell(Text(user.userId.toString())),
+      DataCell(Text(user.username)),
+      DataCell(Text(user.email)),
+      DataCell(actions(user, update))
+    ]);
   }
 
   @override
