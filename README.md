@@ -38,3 +38,7 @@ for example:
         },
 ```
 By default flutter app is configured to work with emulator and docker api services.
+
+If you need to access the source email from where emails are sent:
+email: janari0service@outlook.com
+pass: SeriousStudent!
