@@ -18,8 +18,6 @@ Test users:
 
 admin@gmail.com
 
-mobile@gmail.com (user with the food, seller)
-
 mobile2@gmail.com (user that buys the food)
 
 
