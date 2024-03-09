@@ -17,7 +17,7 @@ All test users have the same password: test123
 Test users:
 
 admin@gmail.com
-
+mobile@gmail.com (user that has the food)
 mobile2@gmail.com (user that buys the food)
 
 
@@ -39,6 +39,4 @@ for example:
 ```
 By default flutter app is configured to work with emulator and docker api services.
 
-If you need to access the source email from where emails are sent:
-email: janari0service@outlook.com
-pass: SeriousStudent!
+For nearby products to be displayed, you need to adjust the location of your Android emulator to Mostar, somewhere within 5 kilometers of the center of Mostar.
