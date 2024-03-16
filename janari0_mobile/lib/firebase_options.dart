@@ -50,22 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB_aJPhXEvrbkds9_JGYWbghdpX5qLaVDA',
-    appId: '1:143272886853:android:c70d6559f9fb90fe5cd92c',
-    messagingSenderId: '143272886853',
-    projectId: 'janari0-b4e82',
-    databaseURL: 'https://janari0-b4e82-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'janari0-b4e82.appspot.com',
+    apiKey: 'AIzaSyCdW2T4X-YJumhjmgj0ClvCB_bHYejSlNI',
+    appId: '1:320098581962:android:d21b8a05a105e2d1d22333',
+    messagingSenderId: '320098581962',
+    projectId: 'janari0-a69b4',
+    storageBucket: 'janari0-a69b4.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD-QNrBxlX4vsnah_NkXT2N9Ary4Xwi-fs',
-    appId: '1:143272886853:ios:19056645c00bc1545cd92c',
-    messagingSenderId: '143272886853',
-    projectId: 'janari0-b4e82',
-    databaseURL: 'https://janari0-b4e82-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'janari0-b4e82.appspot.com',
-    iosClientId: '143272886853-5cf8a44j4er5hs8oh4gal4gdgme4lgik.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBzkMhYyur5hqMgdeEq0rzq_PaMGJ-D8KA',
+    appId: '1:320098581962:ios:c9b7d35c19519255d22333',
+    messagingSenderId: '320098581962',
+    projectId: 'janari0-a69b4',
+    storageBucket: 'janari0-a69b4.appspot.com',
     iosBundleId: 'com.example.janari0Mobile',
   );
 }
