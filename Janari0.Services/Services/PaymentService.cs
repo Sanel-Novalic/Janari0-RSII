@@ -11,19 +11,32 @@ namespace Janari0.Services.Services
 {
     public class PaymentService : IPaymentService
     {
-        public Janari0Context Context;
-        public IMapper Mapper;
+        private readonly Janari0Context _context;
+        private readonly IMapper _mapper;
+        private readonly IProductsSaleService _productsSaleService;
+        private readonly IOrdersService _ordersService;
+        private readonly IOutputService _outputService;
+        private readonly IOutputItemsService _outputItemsService;
 
-        public PaymentService(Janari0Context context, IMapper mapper)
+        public PaymentService(
+            Janari0Context context,
+            IMapper mapper,
+            IProductsSaleService productsSaleService,
+            IOrdersService ordersService,
+            IOutputService outputService,
+            IOutputItemsService outputItemsService)
         {
-            Context = context;
-            Mapper = mapper;
+            _context = context;
+            _mapper = mapper;
+            _productsSaleService = productsSaleService;
+            _ordersService = ordersService;
+            _outputService = outputService;
+            _outputItemsService = outputItemsService;
         }
 
         public async Task<Payment> BeginTransaction(Payment payment)
         {
-            ProductsSaleService productsSaleService = new ProductsSaleService(Context, Mapper);
-            var product = await productsSaleService.GetById(payment.ProductSaleId);
+            var product = await _productsSaleService.GetById(payment.ProductSaleId);
 
             var gateway = new BraintreeGateway()
             {
@@ -57,7 +70,7 @@ namespace Janari0.Services.Services
             if (result.IsSuccess())
             {
                 payment.Successful = true;
-                Context.SaveChanges();
+                _context.SaveChanges();
             }
             else if (result.Transaction != null)
             {
@@ -82,10 +95,7 @@ namespace Janari0.Services.Services
 
         public async Task<Order?> SaveTransaction(int orderId, decimal loyaltyPoints)
         {
-            OrdersService orderService = new(Context, Mapper);
-            OutputService outputService = new(Context, Mapper);
-            OutputItemsService outputItemsService = new(Context, Mapper);
-            var order = await orderService.GetById(orderId);
+            var order = await _ordersService.GetById(orderId);
             if (order == null)
             {
                 return null;
@@ -102,7 +112,7 @@ namespace Janari0.Services.Services
                 OrderId = order.OrderId,
                 ReceiptNumber = order.OrderNumber + "/" + order.Date.Year.ToString(),
             };
-            insertedOutput = await outputService.Insert(output);
+            insertedOutput = await _outputService.Insert(output);
             if (insertedOutput != null)
             {
                 foreach (var item in order.OrderItems)
@@ -115,7 +125,7 @@ namespace Janari0.Services.Services
                             Price = Convert.ToDecimal(item.ProductSale.Price),
                             Discount = loyaltyPoints,
                         };
-                    await outputItemsService.Insert(outputitem);
+                    await _outputItemsService.Insert(outputitem);
                 }
             }
             return order;

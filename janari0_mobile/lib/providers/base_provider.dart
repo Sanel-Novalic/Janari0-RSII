@@ -263,7 +263,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   Future signInWithEmailPasswordAdmin(String email, String password) async {
     final Uri uri = Uri.parse(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD91o8tNVKoS_K0dM66davEVfuqCsz7eGE');
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDD5K23WGLr9UIevPH5CQj5oKDAs2M5AVM');
     final response = await http?.post(uri,
         body: json.encode({
           'email': email,

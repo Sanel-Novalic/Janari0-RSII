@@ -69,11 +69,13 @@ class _DashboardScreen extends State<DashboardScreen> {
             return const CircularProgressIndicator();
           }
           return Scaffold(
-            body: Column(
-              children: [
-                const SizedBox(height: defaultPadding),
-                if (widgets.isNotEmpty) widgets[drawer.getCurrentDrawer],
-              ],
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: defaultPadding),
+                  if (widgets.isNotEmpty) widgets[drawer.getCurrentDrawer],
+                ],
+              ),
             ),
           );
         },

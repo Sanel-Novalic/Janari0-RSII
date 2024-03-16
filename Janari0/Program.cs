@@ -52,6 +52,7 @@ builder.Services.AddTransient<IPhotoService, PhotoService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<IBuyersService, BuyersService>();
 builder.Services.AddTransient<IOrderItemsService, OrderItemsService>();
+builder.Services.AddTransient<IOutputItemsService, OutputItemsService>();
 builder.Services.AddTransient<IOrdersService, OrdersService>();
 builder.Services.AddTransient<IOutputService, OutputService>();
 builder.Services.AddTransient<IPaymentService, PaymentService>();
@@ -100,6 +101,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider.GetRequiredService<Janari0Context>();
+    service.Database.EnsureDeleted();
     service.Database.Migrate();
 }
 

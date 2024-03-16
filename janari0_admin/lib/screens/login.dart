@@ -10,57 +10,59 @@ class Login extends StatelessWidget {
     String email = "";
     String password = "";
     return Scaffold(
-        body: Column(
-      children: [
-        const SizedBox(
-          height: 50,
-        ),
-        const SizedBox(
-            width: double.infinity,
-            child: Text(
-              'Hello there!',
-              textAlign: TextAlign.center,
-            )),
-        const SizedBox(
-          height: 350,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Email',
-            ),
-            onChanged: (text) {
-              email = text;
-            },
+        body: SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 50,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Password',
-            ),
-            onChanged: (text) {
-              password = text;
-            },
+          const SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Hello there!',
+                textAlign: TextAlign.center,
+              )),
+          const SizedBox(
+            height: 350,
           ),
-        ),
-        ElevatedButton(
-          onPressed: () => loginUser(email, password, context),
-          style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
-          child: const Text('Login'),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Email',
+              ),
+              onChanged: (text) {
+                email = text;
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Password',
+              ),
+              onChanged: (text) {
+                password = text;
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => loginUser(email, password, context),
+            style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+            child: const Text('Login'),
+          ),
+        ],
+      ),
     ));
   }
 
   Future loginUser(String email, String password, BuildContext context) async {
     UserProvider userProvider = UserProvider();
     try {
-      await userProvider.login(email, password);
+      await userProvider.signInWithEmailPasswordAdmin(email, password);
       if (context.mounted) {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const MainScreen()));

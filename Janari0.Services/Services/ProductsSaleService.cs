@@ -14,25 +14,38 @@ namespace Janari0.Services.Services
         : BaseCRUDService<Model.ProductsSale, Database.ProductsSale, ProductsSaleSearchObject, ProductsSaleInsertRequest, ProductsSaleUpdateRequest>,
             IProductsSaleService
     {
-        public ProductsSaleService(Janari0Context context, IMapper mapper)
-            : base(context, mapper) { }
+        private readonly IProductsService _productsService;
+        private readonly ILocationService _locationService;
+        private readonly IBuyersService _buyersService;
+        private readonly IOrdersService _ordersService;
+        public ProductsSaleService(
+            Janari0Context context, 
+            IMapper mapper,
+            IProductsService productsService,
+            ILocationService locationService,
+            IBuyersService buyersService,
+            IOrdersService ordersService)
+            : base(context, mapper) {
+            _productsService = productsService;
+            _locationService = locationService;
+            _buyersService = buyersService;
+            _ordersService = ordersService;
+        }
 
         public async Task<IEnumerable<Model.ProductsSale>> GetCarouselData(ProductsSaleSearchObject? search = null)
         {
-            ProductsService productsService = new(Context, Mapper);
             var list = await base.Get(search);
             List<Model.ProductsSale> productsSale = new();
             if (search?.Carousel == "Nearby")
             {
                 foreach (var productSale in list)
                 {
-                    LocationService locationService = new(Context, Mapper);
-                    var location = await locationService.GetById(productSale.LocationId);
+                    var location = await _locationService.GetById(productSale.LocationId);
                     productSale.Location = location;
                     var distance = getDistance(search.Latitude, search.Longitude, productSale.Location.Latitude, productSale.Location.Longitude);
                     if (distance < 5000)
                     {
-                        var product = await productsService.GetById(productSale.ProductId);
+                        var product = await _productsService.GetById(productSale.ProductId);
                         productSale.Product = product;
                         productsSale.Add(productSale);
                     }
@@ -44,7 +57,7 @@ namespace Janari0.Services.Services
                 {
                     if (productSale.Price == "Free")
                     {
-                        var product = await productsService.GetById(productSale.ProductId);
+                        var product = await _productsService.GetById(productSale.ProductId);
                         productSale.Product = product;
                         productsSale.Add(productSale);
                     }
@@ -75,9 +88,7 @@ namespace Janari0.Services.Services
                 return null;
             }
 
-            var productsService = new ProductsService(Context, Mapper);
-
-            var product = await productsService.GetById(entity.ProductId);
+            var product = await _productsService.GetById(entity.ProductId);
 
             entity.Product = Mapper.Map<Product>(product);
 
@@ -88,10 +99,9 @@ namespace Janari0.Services.Services
         {
             var list = await base.Get(search);
 
-            ProductsService productService = new(Context, Mapper);
             foreach (var item in list)
             {
-                var product = await productService.GetById(item.ProductId);
+                var product = await _productsService.GetById(item.ProductId);
                 item.Product = product;
             }
             return list;
@@ -99,31 +109,27 @@ namespace Janari0.Services.Services
 
         public override async Task BeforeDelete(Database.ProductsSale dbentity)
         {
-            BuyersService buyersService = new(Context, Mapper);
 
             foreach (var item in dbentity.Buyers)
             {
-                await buyersService.Delete(item.BuyerId);
+                await _buyersService.Delete(item.BuyerId);
             }
         }
 
         static MLContext? mlContext = null;
         static ITransformer? model = null;
+        static object isLocked = new object();
 
         public async Task<List<Model.ProductsSale>> Recommend(int id)
         {
-            var allItems = Context.ProductsSales.AsQueryable();
 
-            ITransformer trainedModel;
-            try
-            {
-                trainedModel = await ModelTrainer(id);
-            }
-            catch (Exception e)
-            {
-                var get = await Get();
-                return get.ToList();
-            }
+            OrderSearchObject orderSearchObject = new() { UserId = id };
+
+            var tmpTask = await _ordersService.Get(orderSearchObject);
+            var tmp = tmpTask.ToList();
+            ITransformer trainedModel = ModelTrainer(tmp);
+
+            var allItems = Context.ProductsSales.AsQueryable();
 
             var predictionResult = new List<Tuple<Database.ProductsSale, float>>();
             foreach (var item in allItems)
@@ -137,68 +143,64 @@ namespace Janari0.Services.Services
 
             var finalResult = predictionResult.OrderByDescending(o => o.Item2).Select(s => s.Item1).Take(3).ToList();
 
-            ProductsService productService = new(Context, Mapper);
             if (finalResult != null)
             {
                 foreach (var item in finalResult)
                 {
-                    var product = await productService.GetById(item.ProductId);
+                    var product = await _productsService.GetById(item.ProductId);
                     item.Product = Mapper.Map<Product>(product);
                 }
             }
             return Mapper.Map<List<Model.ProductsSale>>(finalResult);
         }
 
-        public async Task<ITransformer> ModelTrainer(int id)
+        public ITransformer ModelTrainer(List<Model.Order>? tmp)
         {
-            if (mlContext == null)
+            lock (isLocked)
             {
-                mlContext = new MLContext();
-
-                OrdersService ordersService = new(Context, Mapper);
-                OrderSearchObject orderSearchObject = new() { UserId = id };
-
-                var tmpTask = await ordersService.Get(orderSearchObject);
-                var tmp = tmpTask.ToList();
-
-                var data = new List<ProductEntry>();
-
-                foreach (var item in tmp)
+                if (mlContext == null)
                 {
-                    if (item.OrderItems.Count > 1)
+                    mlContext = new MLContext();
+
+                    var data = new List<ProductEntry>();
+
+                    foreach (var item in tmp)
                     {
-                        var distinctItemId = item.OrderItems.Select(s => s.ProductSaleId).ToList();
-
-                        distinctItemId.ForEach(x =>
+                        if (item.OrderItems.Count > 1)
                         {
-                            var relatedItems = item.OrderItems.Where(w => w.ProductSaleId != x);
+                            var distinctItemId = item.OrderItems.Select(s => s.ProductSaleId).ToList();
 
-                            foreach (var y in relatedItems)
+                            distinctItemId.ForEach(x =>
                             {
-                                data.Add(new ProductEntry() { ProductSaleID = (uint)x, CoPurchaseProductSaleID = (uint)y.ProductSaleId, });
-                            }
-                        });
+                                var relatedItems = item.OrderItems.Where(w => w.ProductSaleId != x);
+
+                                foreach (var y in relatedItems)
+                                {
+                                    data.Add(new ProductEntry() { ProductSaleID = (uint)x, CoPurchaseProductSaleID = (uint)y.ProductSaleId, });
+                                }
+                            });
+                        }
                     }
+
+                    var trainData = mlContext.Data.LoadFromEnumerable(data);
+
+                    MatrixFactorizationTrainer.Options options = new MatrixFactorizationTrainer.Options();
+                    options.MatrixColumnIndexColumnName = nameof(ProductEntry.ProductSaleID);
+                    options.MatrixRowIndexColumnName = nameof(ProductEntry.CoPurchaseProductSaleID);
+                    options.LabelColumnName = "Label";
+                    options.LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass;
+                    options.Alpha = 0.01;
+                    options.Lambda = 0.025;
+                    options.NumberOfIterations = 100;
+                    options.C = 0.00001;
+
+                    var est = mlContext.Recommendation().Trainers.MatrixFactorization(options);
+
+                    model = est.Fit(trainData);
                 }
 
-                var trainData = mlContext.Data.LoadFromEnumerable(data);
-
-                MatrixFactorizationTrainer.Options options = new MatrixFactorizationTrainer.Options();
-                options.MatrixColumnIndexColumnName = nameof(ProductEntry.ProductSaleID);
-                options.MatrixRowIndexColumnName = nameof(ProductEntry.CoPurchaseProductSaleID);
-                options.LabelColumnName = "Label";
-                options.LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass;
-                options.Alpha = 0.01;
-                options.Lambda = 0.025;
-                options.NumberOfIterations = 100;
-                options.C = 0.00001;
-
-                var est = mlContext.Recommendation().Trainers.MatrixFactorization(options);
-
-                model = est.Fit(trainData);
+                return model;
             }
-
-            return model;
         }
     }
 

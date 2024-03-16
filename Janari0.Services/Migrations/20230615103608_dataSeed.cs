@@ -26,8 +26,8 @@ namespace Janari0.Services.Migrations
                 values: new object[,]
                 {
                     { 1, "admin", "+387644220270", "Admin", "admin@gmail.com", 1, null, "NEEphxx+90yIpTB9+oQgr+uqkwyswcKetdlnWaNPAu8=", "p9oxnS3jScFdY1Xoml8vhQ==" },
-                    { 2, "mobile", "+387644220370", "User", "mobile@gmail.com", 2, "w6JtEuE2uDRKG2wVgFDJ409Mkx12", null, null },
-                    { 3, "mobile2", "+387644220470", "User", "mobile2@gmail.com", 3, "wfWRlB2A0SWXztYeM1SbZvYpYuQ2", null, null },
+                    { 2, "mobile", "+387644220370", "User", "mobile@gmail.com", 2, "Klrv5taDRPPqe0cWizfjxAbQW232", null, null },
+                    { 3, "mobile2", "+387644220470", "User", "mobile2@gmail.com", 3, "d4jCJjZmfbfYqtXb0jLUaXtdUS63", null, null },
                 }
             );
             migrationBuilder.InsertData(
@@ -35,16 +35,19 @@ namespace Janari0.Services.Migrations
                 columns: new[] { "ProductID", "Name", "ExpirationDate", "UserID" },
                 values: new object[,]
                 {
-                    { 1, "Ketchup", "2023-06-19 00:00:00.000", 2 },
-                    { 2, "Truffles", "2023-08-19 00:00:00.000", 2 },
-                    { 3, "Čokolino protein", "2023-06-17 00:00:00.000", 2 },
-                    { 4, "Focus Mango", "2023-07-22 00:00:00.000", 2 },
-                    { 5, "Senf", "2023-06-16 00:00:00.000", 2 },
-                    { 6, "Zottis", "2023-06-21 00:00:00.000", 2 },
-                    { 7, "Pečena piletina začin", "2023-12-19 00:00:00.000", 2 },
-                    { 8, "Vegeta", "2024-04-19 00:00:00.000", 2 },
-                    { 9, "Kamilica", "2024-04-19 00:00:00.000", 2 },
-                    { 10, "Špagete", "2023-11-19 00:00:00.000", 2 },
+                    { 1, "Argeta", "2023-06-19 00:00:00.000", 2 },
+                    { 2, "Datule", "2023-08-19 00:00:00.000", 2 },
+                    { 3, "Dva bataka", "2023-06-17 00:00:00.000", 2 },
+                    { 4, "Fasirano meso", "2023-07-22 00:00:00.000", 2 },
+                    { 5, "Grah", "2023-06-16 00:00:00.000", 2 },
+                    { 6, "Jadranska sardina", "2023-06-21 00:00:00.000", 2 },
+                    { 7, "Livada sir", "2023-12-19 00:00:00.000", 2 },
+                    { 8, "Palenta", "2024-04-19 00:00:00.000", 2 },
+                    { 9, "Riza", "2024-04-19 00:00:00.000", 2 },
+                    { 10, "Salama", "2023-11-19 00:00:00.000", 2 },
+                    { 11, "Šljiva", "2023-11-19 00:00:00.000", 2 },
+                    { 12, "Svjeza jaja", "2023-11-19 00:00:00.000", 2 },
+                    { 13, "Vitalia", "2023-11-19 00:00:00.000", 2 },
                 }
             );
             migrationBuilder.InsertData(
@@ -55,52 +58,67 @@ namespace Janari0.Services.Migrations
                     {
                         1,
                         1,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686761623955_800?alt=media&token=7dfe3431-501a-491b-99ea-925788b42cd7"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Argeta.jpg?alt=media&token=93e709ab-ac41-4fae-8f86-f6df1d34b982"
                     },
                     {
                         2,
                         2,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763406250_800?alt=media&token=fc2971f0-b6ef-4c8a-a850-9dc5fb2b0370"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Datule.jpg?alt=media&token=d7d58981-3d05-4e46-8366-f7ed2af3c69f"
                     },
                     {
                         3,
                         3,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763483386_800?alt=media&token=5969c315-e0ad-4801-9eca-cbd5f0f00bc6"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Dva_bataka.jpg?alt=media&token=01258e4b-f8ec-4cee-a2c2-e642861f93ff"
                     },
                     {
                         4,
                         4,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763549194_800?alt=media&token=382be1f7-fa34-405e-a759-ed15e1bebf5b"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Fasirano_meso.jpg?alt=media&token=32657009-3f1a-458c-a5d8-09b89672c70d"
                     },
                     {
                         5,
                         5,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763709894_800?alt=media&token=589c594d-f80d-4264-91d9-c92ff4bf61ca"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Grah.jpg?alt=media&token=dcd915ca-532c-4ac5-ab0a-87c203f20e8a"
                     },
                     {
                         6,
                         6,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763756454_800?alt=media&token=1f924469-59e5-4aeb-bb28-de07dce30a0a"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Jadranska_sardina.jpg?alt=media&token=2e498e23-3db8-4228-b408-e799b7746abd"
                     },
                     {
                         7,
                         7,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763850530_800?alt=media&token=93def85b-cdb0-45ff-8e6f-353a19058901"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Livada%2070kb.jpeg?alt=media&token=f8d1174a-d551-41bc-bb95-669897e38de7"
                     },
                     {
                         8,
                         8,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686763983753_800?alt=media&token=785e38d7-1f29-4f57-9436-f746367d0e34"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Palenta.jpg?alt=media&token=fdb9ac19-47e6-4505-9417-89c6aa21c95f"
                     },
                     {
                         9,
                         9,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686764015046_800?alt=media&token=f7964c14-7084-4750-8337-352014e39574"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Riza.jpg?alt=media&token=1c0d8e2a-77d0-42ec-81bd-a02a6c99b23f"
                     },
                     {
                         10,
                         10,
-                        "https://firebasestorage.googleapis.com/v0/b/janari0-b4e82.appspot.com/o/images%2F4rYusPYk5PYmSdN8t1niVNnQIk83%2F1686764057541_800?alt=media&token=68983511-7cd0-4a77-b5c3-39feb1a3c796"
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Salama.jpg?alt=media&token=43c05c01-6ca2-4e11-872f-86ceac5a6a6c"
+                    },
+                    {
+                        11,
+                        11,
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Sljive.jpg?alt=media&token=9794975a-47e4-4974-9a35-88d06bc1ae2b"
+                    },
+                    {
+                        12,
+                        12,
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Svjeza_JAJA.jpg?alt=media&token=db1700c1-c865-4321-896e-798c0095b134"
+                    },
+                    {
+                        13,
+                        13,
+                        "https://firebasestorage.googleapis.com/v0/b/janari0-a69b4.appspot.com/o/Vitalia.jpg?alt=media&token=d567b814-bfea-47e6-b5c5-a9ae2cc64a10"
                     },
                 }
             );
@@ -109,12 +127,12 @@ namespace Janari0.Services.Migrations
                 columns: new[] { "ProductSaleID", "Description", "Price", "LocationID", "ProductID" },
                 values: new object[,]
                 {
-                    { 1, "Najbolji kečap ikad", "1", 2, 1 },
-                    { 2, "Luksuzan ukus", "1.5", 2, 2 },
-                    { 3, "Odličan za teretane a i za mršanje", "4", 2, 3 },
-                    { 4, "Underrated piće, odličan ukus", "0.5", 2, 4 },
-                    { 5, "Obična kamilica", "Free", 2, 9 },
-                    { 6, "Špagete kupljene u italiji", "Free", 2, 10 },
+                    { 1, "Ovu klasišnu argetu sam dobio kao poklon ali ja sam htio lovačku pa ne zelim je", "1", 2, 1 },
+                    { 2, "Ramazan dolazi ali ja ne postim", "1.5", 2, 2 },
+                    { 3, "Dva bataka koja lijepo izgledaju", "2", 2, 3 },
+                    { 4, "Sarma samo takva moze ispasti iz ovoga", "3", 2, 4 },
+                    { 5, "Ne znam oprati rizu, nek se neko drugi muci sa njom", "Free", 2, 9 },
+                    { 6, "Dodijala mi ova salama, presao sam na kvalitetnije vrste mesa", "Free", 2, 10 },
                 }
             );
             migrationBuilder.InsertData(
@@ -187,6 +205,9 @@ namespace Janari0.Services.Migrations
             migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 8);
             migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 9);
             migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 10);
+            migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 11);
+            migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 12);
+            migrationBuilder.DeleteData(table: "Photos", keyColumn: "PhotoID", keyValue: 13);
 
             migrationBuilder.DeleteData(table: "Locations", keyColumn: "LocationID", keyValue: 1);
             migrationBuilder.DeleteData(table: "Locations", keyColumn: "LocationID", keyValue: 2);
@@ -206,6 +227,9 @@ namespace Janari0.Services.Migrations
             migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 8);
             migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 9);
             migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 10);
+            migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 11);
+            migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 12);
+            migrationBuilder.DeleteData(table: "Products", keyColumn: "ProductID", keyValue: 13);
 
             migrationBuilder.DeleteData(table: "ProductsSale", keyColumn: "ProductSaleID", keyValue: 1);
             migrationBuilder.DeleteData(table: "ProductsSale", keyColumn: "ProductSaleID", keyValue: 2);

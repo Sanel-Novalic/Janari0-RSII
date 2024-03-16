@@ -8,6 +8,5 @@ namespace Janari0.Services.IServices
     {
         Task<IEnumerable<Model.ProductsSale>> GetCarouselData(ProductsSaleSearchObject? search = null);
         Task<List<Model.ProductsSale>> Recommend(int id);
-        Task<ITransformer> ModelTrainer(int id);
     }
 }
