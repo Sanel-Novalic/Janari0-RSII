@@ -5,6 +5,7 @@ using Janari0.Services.Context;
 using Janari0.Services.HelperMethods;
 using Janari0.Services.IServices;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace Janari0.Services.Services
 {
@@ -16,19 +17,33 @@ namespace Janari0.Services.Services
         public override async Task<Model.User?> Insert(UserInsertRequest insert)
         {
             var user = Context.Users.Where(e => e.Username == insert.Username).FirstOrDefault();
+            string message = "Something went wrong";
             if (user != null)
             {
-                return null;
+                message = $"User with the same username already exists.";
+                throw new ArgumentException(message);
             }
             user = Context.Users.Where(p => p.PhoneNumber == insert.PhoneNumber).FirstOrDefault();
             if (user != null)
             {
-                return null;
+                message = $"User with the same phone number already exists.";
+                throw new ArgumentException(message);
             }
             user = Context.Users.Where(p => p.Email == insert.Email).FirstOrDefault();
             if (user != null)
             {
-                return null;
+                message = $"User with the same email already exists.";
+                throw new ArgumentException(message);
+            }
+
+            if (insert.Username == null || insert.Username.Length < 3)
+            {
+                message = $"Username must be bigger than 3 characters";
+                throw new ArgumentException(message);
+            } else if (!IsValid(insert.Email))
+            {
+                message = $"Email is invalid";
+                throw new ArgumentException(message);
             }
 
             var location = Mapper.Map<Database.Location>(insert.Location);
@@ -104,6 +119,20 @@ namespace Janari0.Services.Services
                 return null;
 
             return Mapper.Map<Model.User?>(entity);
+        }
+
+        public bool IsValid(string emailaddress)
+        {
+            try
+            {
+                MailAddress m = new MailAddress(emailaddress);
+
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
     }
 }

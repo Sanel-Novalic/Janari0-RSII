@@ -32,6 +32,32 @@ namespace Janari0.Services.Services
             _ordersService = ordersService;
         }
 
+        public override async Task<Model.ProductsSale?> Insert(ProductsSaleInsertRequest insert)
+        {
+            string message;
+            if (insert.ProductId == null)
+            {
+                message = "ProductId must not be null";
+                throw new ArgumentException(message);
+            }
+            if (insert.Price == null)
+            {
+                message = "Price must not be null";
+                throw new ArgumentException(message);
+            }
+            var isNumeric = int.TryParse("123", out _);
+            if (isNumeric == false && insert.Price != "Free")
+            {
+                message = "Invalid price amount";
+                throw new ArgumentException(message);
+            }
+
+            var dbentity = await base.Insert(insert);
+            await Context.SaveChangesAsync();
+
+            return dbentity;
+        }
+
         public async Task<IEnumerable<Model.ProductsSale>> GetCarouselData(ProductsSaleSearchObject? search = null)
         {
             var list = await base.Get(search);

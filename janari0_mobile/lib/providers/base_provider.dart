@@ -133,15 +133,27 @@ abstract class BaseProvider<T> with ChangeNotifier {
       var response = await http!
           .post(uri, headers: headers, body: jsonRequest)
           .timeout(const Duration(seconds: 4));
-      if (isValidResponseCode(response)) {
-        if (response.body == '') return null;
-        var data = jsonDecode(response.body);
+
+      var data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
         return fromJson(data);
       } else {
-        return null;
+        if (data['error'] != null) {
+          throw Exception(data['error']);
+        } else if (data['errors'] != null) {
+          var errors = data['errors'] as Map<String, dynamic>;
+          var errorMessages = errors.entries
+              .map((entry) => "${entry.key}: ${entry.value.join(', ')}")
+              .join('\n');
+          throw Exception(errorMessages);
+        } else {
+          throw Exception(data['title'] ?? "An error occurred");
+        }
       }
     } on TimeoutException {
-      throw Exception("Something is invalid");
+      throw Exception("Request timed out");
+    } catch (e) {
+      rethrow;
     }
   }
 

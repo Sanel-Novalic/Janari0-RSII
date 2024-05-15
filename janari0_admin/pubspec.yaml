@@ -34,6 +34,8 @@ dependencies:
   get:
   janari0:
     path: ../janari0_mobile
+  intl: ^0.19.0
+  carousel_slider: ^4.0.0
   flutter:
     sdk: flutter
 

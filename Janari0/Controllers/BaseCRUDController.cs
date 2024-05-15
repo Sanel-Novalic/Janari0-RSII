@@ -1,5 +1,6 @@
 ﻿using Janari0.Model.SearchObjects;
 using Janari0.Services.IServices;
+using Janari0.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Janari0.Controllers
@@ -14,11 +15,22 @@ namespace Janari0.Controllers
             : base(service) { }
 
         [HttpPost]
-        public virtual async Task<T?> Insert([FromBody] TInsert insert)
+        public virtual async Task<IActionResult> Insert([FromBody] TInsert insert)
         {
-            var result = await ((ICRUDService<T, TSearch, TInsert, TUpdate>)this.Service).Insert(insert);
+            try
+            {
+                var result = await ((ICRUDService<T, TSearch, TInsert, TUpdate>)this.Service).Insert(insert);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { error = "An error occurred while creating the user. Please try again." });
+            }
 
-            return result;
         }
 
         [HttpPut("{id}")]

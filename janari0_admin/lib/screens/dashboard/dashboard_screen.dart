@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:janari0/model/order.dart';
 import 'package:janari0/model/output.dart';
 import 'package:janari0/model/product.dart';
@@ -12,11 +14,14 @@ import 'package:janari0/providers/product_provider.dart';
 import 'package:janari0/providers/product_sale_provider.dart';
 import 'package:janari0/providers/user_provider.dart';
 import 'package:janari0_admin/controllers/menu_app_controller.dart';
+import 'package:janari0_admin/screens/create_row.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 import 'package:get/get.dart';
 
 import '../edit_row.dart';
+
+enum TABLE { users, products, productsSale, orders, output }
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -83,8 +88,9 @@ class _DashboardScreen extends State<DashboardScreen> {
     );
   }
 
-  Widget table(String headline, Text col1, Text col2, Text col3,
-      DataTableSource source) {
+  Widget table(
+      String headline, Text col1, Text col2, Text col3, DataTableSource source,
+      {Text? col4}) {
     return Container(
       padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
@@ -93,9 +99,27 @@ class _DashboardScreen extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            headline,
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            children: [
+              Text(
+                headline,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () => {createRow(headline)},
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 24),
+                  child: Text(
+                    'Create a row',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
           SizedBox(
             width: double.infinity,
@@ -112,6 +136,10 @@ class _DashboardScreen extends State<DashboardScreen> {
                   DataColumn(
                     label: col3,
                   ),
+                  if (col4 != null)
+                    DataColumn(
+                      label: col4,
+                    ),
                   const DataColumn(
                     label: Text("Actions"),
                   ),
@@ -142,7 +170,8 @@ class _DashboardScreen extends State<DashboardScreen> {
         const Text("Email"), UsersData(update: update)));
 
     widgets.add(table("Products", const Text("ProductID"), const Text("Name"),
-        const Text("Expiration Date"), ProductsData(update: update)));
+        const Text("Expiration Date"), ProductsData(update: update),
+        col4: const Text("Photos")));
 
     widgets.add(table(
         "ProductsSale",
@@ -156,6 +185,28 @@ class _DashboardScreen extends State<DashboardScreen> {
 
     widgets.add(table("Outputs", const Text("OutputID"), const Text("Amount"),
         const Text("Concluded"), OutputData(update: update)));
+  }
+
+  createRow(headline) async {
+    var row = TABLE.users;
+    switch (headline) {
+      case "Products":
+        row = TABLE.products;
+        break;
+      case "ProductsSale":
+        row = TABLE.productsSale;
+        break;
+      case "Orders":
+        row = TABLE.orders;
+        break;
+      case "Outputs":
+        row = TABLE.output;
+        break;
+    }
+    var result = await Get.to(() => CreateRow(row: row));
+    if (result == 'Created') {
+      update(message: "Successfully created a row");
+    }
   }
 }
 
@@ -246,12 +297,47 @@ class ProductsData extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     final product = products[index];
+    String formattedDate =
+        DateFormat('yyyy-MM-dd').format(product.expirationDate!);
     return DataRow.byIndex(index: index, cells: [
       DataCell(Text(product.productId.toString())),
       DataCell(Text(product.name!)),
-      DataCell(Text(product.expirationDate!.toIso8601String())),
+      DataCell(Text(formattedDate)),
+      DataCell(carouselView(product.photos.map((p) => p.link ?? "").toList())),
       DataCell(actions(product, update))
     ]);
+  }
+
+  Widget carouselView(List<String> imageUrls) {
+    if (imageUrls.isEmpty) {
+      return Text("No images");
+    }
+    return Container(
+      height: 100,
+      width: 100, // Specify a fixed height appropriate for your layout
+      child: CarouselSlider(
+        options: CarouselOptions(
+          autoPlay: true,
+          aspectRatio: 2.0,
+          enlargeCenterPage: true,
+          viewportFraction: 0.8,
+          autoPlayInterval: Duration(seconds: 3),
+          autoPlayAnimationDuration: Duration(milliseconds: 800),
+        ),
+        items: imageUrls.map((url) {
+          return Builder(
+            builder: (BuildContext context) {
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: BoxDecoration(color: Colors.amber),
+                child: Image.network(url, fit: BoxFit.cover),
+              );
+            },
+          );
+        }).toList(),
+      ),
+    );
   }
 
   @override

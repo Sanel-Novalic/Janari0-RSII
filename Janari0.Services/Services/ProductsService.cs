@@ -12,6 +12,22 @@ namespace Janari0.Services.Services
         public ProductsService(Janari0Context context, IMapper mapper)
             : base(context, mapper) { }
 
+
+        public override async Task<Model.Product?> Insert(ProductInsertRequest insert)
+        {
+            string message = "Something went wrong";
+            if (insert.Name == null || insert.Name.Length < 3)
+            {
+                message = $"Product name must be bigger than 3 characters";
+                throw new ArgumentException(message);
+            }
+
+            var dbentity = await base.Insert(insert);
+            await Context.SaveChangesAsync();
+
+            return dbentity;
+        }
+
         public override async Task<IEnumerable<Model.Product>> Get(ProductSearchObject? search = null)
         {
             var list = await base.Get(search);
